@@ -1,13 +1,15 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Box, Typography, Button } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
 import { signUpSchema } from "../util/schema";
 import { signupInitialvalue } from "../util/initialValues";
 import AppInput from "../Form/Input";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 import { CREATE_USER } from "../util/helper";
 import useFetch from "../hooks/useFetch";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
+import useLocalStorage from "../hooks/useLocalStorage";
+import { StyledBox } from "../Components/Style/LoginBox";
 
 function Signup() {
   const formProps = useForm({
@@ -16,6 +18,8 @@ function Signup() {
     defaultValues: signupInitialvalue,
   });
   const fetchAndSubmitData = useFetch();
+  const { getDataFromLocalStorage } = useLocalStorage();
+  const user = getDataFromLocalStorage("loggedInuser");
 
   async function onSubmit(values) {
     try {
@@ -30,6 +34,10 @@ function Signup() {
     }
   }
 
+  if (user) {
+    return <Navigate to="/home" />;
+  }
+
   return (
     <Box
       sx={{
@@ -41,17 +49,7 @@ function Signup() {
     >
       <FormProvider {...formProps}>
         <form onSubmit={formProps.handleSubmit(onSubmit)}>
-          <Box
-            p={4}
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "0.5rem",
-              width: "400px",
-              marginTop: "100px",
-              boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
-            }}
-          >
+          <StyledBox>
             <Typography variant="h5">Create Account</Typography>
             <AppInput name="name" label="Name" type="text" />
             <AppInput name="email" label="Email" type="email" />
@@ -80,7 +78,7 @@ function Signup() {
                 Already have account
               </Link>
             </Box>
-          </Box>
+          </StyledBox>
         </form>
       </FormProvider>
     </Box>

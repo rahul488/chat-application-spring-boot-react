@@ -98,6 +98,7 @@ const UserChats = forwardRef((props, ref) => {
               {showDayName && (
                 <Typography
                   variant="subtitle2"
+                  sx={{fontWeight:'bold'}}
                   textAlign={"center"}
                   key={index}
                 >

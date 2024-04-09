@@ -7,7 +7,7 @@ function Index() {
   return (
     <Box>
       <Header />
-      <Box sx={{ position: "relative" }}>
+      <Box sx={{ position: "relative"}}>
         <Outlet />
       </Box>
     </Box>

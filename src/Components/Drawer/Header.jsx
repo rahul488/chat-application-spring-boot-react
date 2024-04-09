@@ -1,14 +1,13 @@
 import * as React from "react";
 import AppBar from "@mui/material/AppBar";
-import { Box, Grid, Button, Toolbar, Typography } from "@mui/material";
+import { Box, Button, Toolbar, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-// import OnlineProple from "./People";
 
 export default function Header() {
   const router = useNavigate();
   const user = JSON.parse(localStorage.getItem("loggedInuser"));
 
-  function handleLogout(){
+  function handleLogout() {
     localStorage.clear();
     router("/");
   }

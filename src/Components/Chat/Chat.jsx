@@ -8,6 +8,7 @@ import UserChats from "./UserChats";
 function Chat() {
   const { client, selectedChat } = useChatContext();
   const chatContainerRef = useRef(null);
+
   return (
     <Box>
       {selectedChat ? (
@@ -32,9 +33,17 @@ function Chat() {
               <MoreVertIcon />
             </IconButton>
           </Box>
-          <Box sx={{ height: "500px", overflowY: "auto", p: 2, scrollBehavior:'smooth' }} ref={chatContainerRef} >
+          <Box
+            sx={{
+              height: "500px",
+              overflowY: "auto",
+              p: 2,
+              scrollBehavior: "smooth",
+            }}
+            ref={chatContainerRef}
+          >
             {/* Chats data */}
-           <UserChats ref={chatContainerRef} />
+            <UserChats ref={chatContainerRef} />
           </Box>
           <Box>
             <Box sx={{ display: "flex", justifyContent: "center" }}>

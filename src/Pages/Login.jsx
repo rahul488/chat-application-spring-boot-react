@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Box, Typography, Button } from "@mui/material";
 import { FormProvider, useForm } from "react-hook-form";
 import { loginSchema } from "../util/schema";
@@ -9,6 +9,8 @@ import useFetch from "../hooks/useFetch";
 import { LOGIN_USER } from "../util/helper";
 import { toast } from "react-toastify";
 import useLocalStorage from "../hooks/useLocalStorage";
+import { StyledBox } from "../Components/Style/LoginBox";
+
 
 function Login() {
   const fetchAndSubmitData = useFetch();
@@ -42,8 +44,8 @@ function Login() {
       console.log("error", e);
     }
   }
-  if(user) {
-    return (<Navigate to="/home" />)
+  if (user) {
+    return <Navigate to="/home" />;
   }
   return (
     <Box
@@ -56,16 +58,7 @@ function Login() {
     >
       <FormProvider {...formProps}>
         <form onSubmit={formProps.handleSubmit(onSubmit)}>
-          <Box
-            p={4}
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "0.5rem",
-              width: "400px",
-              boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
-            }}
-          >
+          <StyledBox>
             <Typography variant="h5">Login</Typography>
             <AppInput name="email" label="Email" type="email" />
             <AppInput name="password" label="Password" type="password" />
@@ -89,12 +82,12 @@ function Login() {
               </Link>
               <Link
                 to="/signup"
-                style={{ textDecoration: "none", color: "#D80BEB" }}
+                style={{ textDecoration: "none", color: "ThreeDDarkShadow" }}
               >
                 Forgot Passsword
               </Link>
             </Box>
-          </Box>
+          </StyledBox>
         </form>
       </FormProvider>
     </Box>
