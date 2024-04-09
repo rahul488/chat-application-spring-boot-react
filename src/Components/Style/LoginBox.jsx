@@ -6,7 +6,7 @@ export const StyledBox = styled(Box)(({ theme }) => ({
   flexDirection: "column",
   gap: "0.5rem",
   width: "400px",
-  padding: "0.5rem 1rem",
+  padding: "1.5rem 1.5rem",
   boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
   [theme.breakpoints.down("sm")]: {
     width: "300px",

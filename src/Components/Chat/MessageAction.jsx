@@ -12,7 +12,7 @@ function MessageAction({ client = null, chatId, receipants = [] }) {
   const { getDataFromLocalStorage } = useLocalStorage();
   const user = getDataFromLocalStorage("loggedInuser");
   function handleChange(e) {
-    setInputVal(e.target.value);
+    setInputVal(e.target.value.trim(""));
   }
   function sendMessage() {
     if (inputVal.length > 0) {
@@ -30,11 +30,18 @@ function MessageAction({ client = null, chatId, receipants = [] }) {
       setInputVal("");
     }
   }
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      sendMessage(event);
+    }
+  };
+
   return (
     <>
       <TextField
         value={inputVal}
         onChange={(e) => handleChange(e)}
+        onKeyDown={handleKeyDown}
         label="Enter your message"
         size="small"
         sx={{

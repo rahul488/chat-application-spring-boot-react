@@ -76,13 +76,13 @@ function Login() {
               </Button>
               <Link
                 to="/signup"
-                style={{ textDecoration: "none", color: "ThreeDDarkShadow" }}
+                style={{ textDecoration: "none", color: "black" }}
               >
                 Create Account
               </Link>
               <Link
                 to="/signup"
-                style={{ textDecoration: "none", color: "ThreeDDarkShadow" }}
+                style={{ textDecoration: "none", color: "black" }}
               >
                 Forgot Passsword
               </Link>
