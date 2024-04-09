@@ -65,7 +65,7 @@ function AllUsers({ users }) {
               {user.name}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {user?.lastMessage?.message}
+              {user?.lastMessage?.message.substring(0,20)}
             </Typography>
           </Box>
           </CardContent>

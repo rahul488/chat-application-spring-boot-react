@@ -5,6 +5,7 @@ import { Box, Typography, Avatar } from "@mui/material";
 import { getTime, getWeekDays } from "../../util/time";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import useScroll from "../../hooks/useScoll";
+import useScreenSize from "../../hooks/useScreenSize";
 
 const UserChats = forwardRef((props, ref) => {
   const [messages, setMessage] = useState([]);
@@ -14,6 +15,7 @@ const UserChats = forwardRef((props, ref) => {
     getMessages();
   const { getDataFromLocalStorage } = useLocalStorage();
   const { isFetching, setFetching } = useScroll(ref);
+  const { isSmall, isExtraSmall } = useScreenSize();
 
   const scrollToBottom = () => {
     if (ref?.current) {
@@ -55,28 +57,25 @@ const UserChats = forwardRef((props, ref) => {
   const getBackground = (senderId) => {
     if (senderId == user.id) {
       return {
-        // width: "200px",
-        height: "40px",
+        height: "auto",
+        width: `${(isSmall || isExtraSmall) ? '200px' :'auto'}`,
         background: "#ff7e5f",
         background: "-webkit-linear-gradient(to right, #ff7e5f, #feb47b)",
         background: "linear-gradient(to right, #ff7e5f, #feb47b)",
         flexWrap: "wrap",
-        display: "flex",
-        alignItems: "center",
         borderRadius: "40px",
+        wordWrap: 'break-word',
         padding: "0.5rem 0.5rem",
         boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
       };
     } else {
       return {
-        // width: "200px",
-        height: "40px",
+        height: "auto",
+        width: `${(isSmall || isExtraSmall) ? '200px' :'auto'}`,
         background: "#00b09b ",
         background: "-webkit-linear-gradient(to right, #96c93d, #00b09b)",
         background: "linear-gradient(to right, #96c93d, #00b09b)",
-        flexWrap: "wrap",
-        display: "flex",
-        alignItems: "center",
+        wordWrap: 'break-word',
         borderRadius: "40px",
         padding: "0.5rem 0.5rem",
         boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
@@ -131,6 +130,7 @@ const UserChats = forwardRef((props, ref) => {
                 <Box
                   sx={{
                     display: "flex",
+                    flexWrap:'wrap',
                     flexDirection: "column",
                     gap: "0.5rem",
                   }}
