@@ -103,6 +103,7 @@ public class MessageService {
     }
 
     public void getAllMessagesByChatId(int chatId){
+        //TODO:- WILL IMPLEMENT PAGINATION
        List<Messages> messages =  messageRepo.findByChatId(chatId);
        messagingTemplate.convertAndSend("/topic/all-messages",messages);
     }
