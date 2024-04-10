@@ -16,6 +16,7 @@ export const getMessages=()=>({
 })
 
 //user related APIS
-const BASEURL = "http://localhost:8080/"
+const BASEURL = "http://friend-zone-chat.eu-north-1.elasticbeanstalk.com/"
+// const BASEURL = "http://localhost:5000/"
 export const  CREATE_USER = BASEURL+"signup";
 export const LOGIN_USER = BASEURL+"login"

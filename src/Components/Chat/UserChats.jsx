@@ -59,8 +59,6 @@ const UserChats = forwardRef((props, ref) => {
       return {
         height: "auto",
         width: `${(isSmall || isExtraSmall) ? '200px' :'auto'}`,
-        background: "#ff7e5f",
-        background: "-webkit-linear-gradient(to right, #ff7e5f, #feb47b)",
         background: "linear-gradient(to right, #ff7e5f, #feb47b)",
         flexWrap: "wrap",
         borderRadius: "40px",
@@ -72,8 +70,6 @@ const UserChats = forwardRef((props, ref) => {
       return {
         height: "auto",
         width: `${(isSmall || isExtraSmall) ? '200px' :'auto'}`,
-        background: "#00b09b ",
-        background: "-webkit-linear-gradient(to right, #96c93d, #00b09b)",
         background: "linear-gradient(to right, #96c93d, #00b09b)",
         wordWrap: 'break-word',
         borderRadius: "40px",
@@ -93,13 +89,12 @@ const UserChats = forwardRef((props, ref) => {
           const showDayName = previousDay !== currentDay;
 
           return (
-            <>
+            <Box   key={message.id}>
               {showDayName && (
                 <Typography
                   variant="subtitle2"
                   sx={{fontWeight:'bold'}}
                   textAlign={"center"}
-                  key={index}
                 >
                   {currentDay}
                 </Typography>
@@ -113,7 +108,6 @@ const UserChats = forwardRef((props, ref) => {
                   width: "100%",
                 }}
                 gap="0.5rem"
-                key={message.id}
               >
                 {message.senderId !== user.id ? (
                   <Avatar
@@ -165,7 +159,7 @@ const UserChats = forwardRef((props, ref) => {
                   />
                 ) : null}
               </Box>
-            </>
+            </Box>
           );
         })}
     </Box>

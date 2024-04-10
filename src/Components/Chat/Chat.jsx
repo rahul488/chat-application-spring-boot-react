@@ -18,8 +18,6 @@ function Chat() {
               display: "flex",
               justifyContent: "space-between",
               backgroundColor: "CaptionText",
-              background: "#ff7e5f",
-              background: "-webkit-linear-gradient(to right, #ff7e5f, #feb47b)",
               background: "linear-gradient(to right, #ff7e5f, #feb47b)",
             }}
           >

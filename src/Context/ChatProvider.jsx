@@ -14,7 +14,7 @@ function ChatProvider({ children }) {
 
   useEffect(() => {
     const currClient = new Client({
-      brokerURL: "ws://localhost:8080/server",
+      brokerURL: "ws://friend-zone-chat.eu-north-1.elasticbeanstalk.com/server",
       onConnect: () => {
         setClient(currClient);
       },

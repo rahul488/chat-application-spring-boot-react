@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import SendIcon from "@mui/icons-material/Send";
 import { IconButton, TextField } from "@mui/material";
 import { sendOrReceiveMessage } from "../../util/helper";
@@ -9,15 +9,20 @@ function MessageAction({ client = null, chatId, receipants = [] }) {
   const [inputVal, setInputVal] = useState("");
   const { selectedChat } = useChatContext();
   const { publish } = sendOrReceiveMessage(selectedChat?.id);
+  const [errorMessage,setErrorMessage] = useState("");
   const { getDataFromLocalStorage } = useLocalStorage();
   const user = getDataFromLocalStorage("loggedInuser");
   function handleChange(e) {
-    setInputVal(e.target.value.trim(""));
+    setErrorMessage("");
+    setInputVal(e.target.value);
   }
   function sendMessage() {
-    if (inputVal.length > 0) {
+    if(inputVal.trim().length == 0){
+      setErrorMessage("Please enter message");
+    }
+    else if (inputVal.length > 0) {
       const payload = {
-        message: inputVal,
+        message: inputVal.trim(),
         senderId: user.id,
         chatId: chatId,
         recipientId: receipants.map((rec) => rec.id),
@@ -44,6 +49,8 @@ function MessageAction({ client = null, chatId, receipants = [] }) {
         onKeyDown={handleKeyDown}
         label="Enter your message"
         size="small"
+        error={errorMessage.length ? true : false}
+        helperText={errorMessage?.length ? errorMessage : ""}
         sx={{
           width: "80%",
           "& .MuiOutlinedInput-root": {
