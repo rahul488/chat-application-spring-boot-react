@@ -60,7 +60,12 @@ public class MessageService {
             for(User user:users) {
                 if (user.getId() != userId) {
                     Chat chat = chatRepo.findChatByUsers(Arrays.asList(userId, user.getId()));
-                    Messages lastMessage = messageRepo.findLastChatMessages(chat.getId());
+                    Messages lastMessage;
+                    if(chat == null) {
+                        lastMessage = null;
+                    }else{
+                        lastMessage = messageRepo.findLastChatMessages(chat.getId());
+                    }
                     UserResponse userResponse = new UserResponse();
                     userResponse.setLastMessage(lastMessage);
                     userResponse.setId(user.getId());
