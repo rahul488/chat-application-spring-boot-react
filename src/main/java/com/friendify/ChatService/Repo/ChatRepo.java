@@ -8,8 +8,8 @@ import java.util.List;
 
 public interface ChatRepo extends JpaRepository<Chat,Integer> {
 
-    @Query("SELECT DISTINCT c FROM Chat c JOIN c.users u WHERE u.id IN (:users) GROUP BY c.id HAVING COUNT(DISTINCT u.id) = 2")
-    public Chat findChatByUsers(List<Integer> users);
+    @Query("SELECT DISTINCT c FROM Chat c JOIN c.users u WHERE u.id IN (:users) GROUP BY c.id HAVING COUNT(DISTINCT u.id) = :userSize")
+    public Chat findChatByUsers(List<Integer> users, int userSize);
 
 
 }

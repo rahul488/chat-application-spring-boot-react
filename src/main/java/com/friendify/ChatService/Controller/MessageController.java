@@ -39,12 +39,12 @@ public class MessageController {
     //start chat
     @MessageMapping("/user/chat")
     public void createChat(@RequestBody Conversion conversion){
-        messageService.startNewConversion(conversion);
+        messageService.startConversion(conversion);
     }
 
     @MessageMapping("/user/messages")
     public void getAllMessages(@RequestBody MessageRequestDTO messageRequestDTO){
-        messageService.getAllMessagesByChatId(messageRequestDTO.getChatId());
+        messageService.getAllMessagesByChatId(messageRequestDTO.getPageNumber(),messageRequestDTO.getChatId());
     }
 
 

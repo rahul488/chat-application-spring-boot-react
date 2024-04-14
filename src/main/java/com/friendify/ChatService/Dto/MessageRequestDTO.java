@@ -13,6 +13,8 @@ public class MessageRequestDTO {
 
     private String message;
 
+    private int pageNumber;
+
     private Integer senderId;
 
     private Integer chatId;

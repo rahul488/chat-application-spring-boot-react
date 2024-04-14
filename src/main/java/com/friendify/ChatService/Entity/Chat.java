@@ -24,7 +24,7 @@ public class Chat {
     private Set<User> users = new HashSet<>();
 
     @OneToMany(mappedBy = "chat")
-    @Cascade( CascadeType.ALL)
+//    @Cascade( CascadeType.ALL)
     private List<Messages> messages=new ArrayList<>();
 
     public Chat() {
