@@ -1,5 +1,5 @@
-import React from "react";
-import { useRef } from "react";
+import React from 'react';
+import { useRef } from 'react';
 
 function useFetch() {
   const abortRef = useRef(null);
@@ -16,14 +16,14 @@ function useFetch() {
       ...options,
       signal: controller.signal,
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
-    }).then((response) => {
+    }).then(response => {
       if (response.ok) {
         abortRef.current = null;
         return response;
       } else {
-        throw Error("Network request failed");
+        throw Error('Network request failed');
       }
     });
   };

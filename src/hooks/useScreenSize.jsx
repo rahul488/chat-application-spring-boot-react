@@ -1,6 +1,6 @@
-import useMediaQuery from "@mui/material/useMediaQuery";
-import { useTheme } from "@mui/material/styles";
-import { useEffect, useState } from "react";
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
+import { useEffect, useState } from 'react';
 
 const useScreenSize = () => {
   const [isExtraSmall, setExtraSmall] = useState(false);
@@ -9,10 +9,10 @@ const useScreenSize = () => {
   const [isLarge, setLarge] = useState(false);
 
   const theme = useTheme();
-  const isExtraSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
-  const isSmallScreen = useMediaQuery(theme.breakpoints.between("sm", "md"));
-  const isMediumScreen = useMediaQuery(theme.breakpoints.between("md", "lg"));
-  const isLargeScreen = useMediaQuery(theme.breakpoints.up("md"));
+  const isExtraSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const isSmallScreen = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+  const isMediumScreen = useMediaQuery(theme.breakpoints.between('md', 'lg'));
+  const isLargeScreen = useMediaQuery(theme.breakpoints.up('md'));
   useEffect(() => {
     const handleResize = () => {
       setExtraSmall(false);

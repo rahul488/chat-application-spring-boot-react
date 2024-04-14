@@ -1,15 +1,15 @@
-import * as React from "react";
-import AppBar from "@mui/material/AppBar";
-import { Box, Button, Toolbar, Typography } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import * as React from 'react';
+import AppBar from '@mui/material/AppBar';
+import { Box, Button, Toolbar, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 export default function Header() {
   const router = useNavigate();
-  const user = JSON.parse(localStorage.getItem("loggedInuser"));
+  const user = JSON.parse(localStorage.getItem('loggedInuser'));
 
   function handleLogout() {
     localStorage.clear();
-    router("/");
+    router('/');
   }
   return (
     <Box sx={{ flexGrow: 1 }}>
@@ -19,7 +19,7 @@ export default function Header() {
             FriendZone
           </Typography>
           {!user ? (
-            <Button color="inherit" onClick={() => router("/")}>
+            <Button color="inherit" onClick={() => router('/')}>
               Login
             </Button>
           ) : (

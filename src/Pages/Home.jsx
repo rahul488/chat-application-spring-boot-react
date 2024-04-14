@@ -1,10 +1,10 @@
-import React from "react";
-import { Box, IconButton } from "@mui/material";
-import ChatSidebar from "../Components/Chat/Chats";
-import Chat from "../Components/Chat/Chat";
-import { useChatContext } from "../Context/ChatProvider";
-import useScreenSize from "../hooks/useScreenSize";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import React from 'react';
+import { Box, IconButton } from '@mui/material';
+import ChatSidebar from '../Components/Chat/Chats';
+import Chat from '../Components/Chat/Chat';
+import { useChatContext } from '../Context/ChatProvider';
+import useScreenSize from '../hooks/useScreenSize';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 function Home() {
   const { selectedChat, handleSelectedChat } = useChatContext();
@@ -13,8 +13,8 @@ function Home() {
   return (
     <Box
       sx={{
-        display: "flex",
-        boxShadow: "0px 10px 15px -3px rgba(0,0,0,0.1)",
+        display: 'flex',
+        boxShadow: '0px 10px 15px -3px rgba(0,0,0,0.1)',
       }}
       p={2}
     >
@@ -22,20 +22,23 @@ function Home() {
         selectedChat ? (
           <Box
             sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "0.5rem",
-              width: "100%",
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.5rem',
+              width: '100%',
             }}
           >
-            <IconButton sx={{justifyContent:'flex-end'}} onClick={() => handleSelectedChat(null)}>
+            <IconButton
+              sx={{ justifyContent: 'flex-end' }}
+              onClick={() => handleSelectedChat(null)}
+            >
               <ArrowBackIcon fontSize="medium" />
             </IconButton>
             <Box
               sx={{
-                padding: "1rem 1rem",
-                width: "100%",
-                border: "1px solid #f2efed",
+                padding: '1rem 1rem',
+                width: '100%',
+                border: '1px solid #f2efed',
               }}
             >
               <Chat />
@@ -44,7 +47,7 @@ function Home() {
         ) : (
           <Box
             sx={{
-              width: "500px",
+              width: '500px',
             }}
           >
             <ChatSidebar />
@@ -54,16 +57,16 @@ function Home() {
         <>
           <Box
             sx={{
-              width: "500px",
+              width: '500px',
             }}
           >
             <ChatSidebar />
           </Box>
           <Box
             sx={{
-              padding: "1rem 1rem",
-              width: "100%",
-              border: "1px solid #f2efed",
+              padding: '1rem 1rem',
+              width: '100%',
+              border: '1px solid #f2efed',
             }}
           >
             <Chat />

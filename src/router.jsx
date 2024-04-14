@@ -1,9 +1,9 @@
-import { Navigate, createBrowserRouter, useNavigate } from "react-router-dom";
-import Home from "./Pages/Home";
-import Login from "./Pages/Login";
-import Index from "./Pages/Index";
-import ChatProvider from "./Context/ChatProvider";
-import Signup from "./Pages/Signup";
+import { Navigate, createBrowserRouter, useNavigate } from 'react-router-dom';
+import Home from './Pages/Home';
+import Login from './Pages/Login';
+import Index from './Pages/Index';
+import ChatProvider from './Context/ChatProvider';
+import Signup from './Pages/Signup';
 
 const routes = [
   {
@@ -11,7 +11,7 @@ const routes = [
     element: <Login />,
   },
   {
-    path: "home",
+    path: 'home',
     element: (
       <Privateroute>
         <ChatProvider>
@@ -22,14 +22,14 @@ const routes = [
     children: [],
   },
   {
-    path: "signup",
+    path: 'signup',
     element: <Signup />,
     children: [],
   },
 ];
 export const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     element: <Index />,
     children: routes,
     errorElement: <h1>Not found....</h1>,
@@ -37,9 +37,9 @@ export const router = createBrowserRouter([
 ]);
 
 function Privateroute({ children }) {
-  const user = JSON.parse(localStorage.getItem("loggedInuser")) || false;
+  const user = JSON.parse(localStorage.getItem('loggedInuser')) || false;
   if (!user) {
-    return <Navigate to={"/"} />;
+    return <Navigate to={'/'} />;
   }
   return children;
 }

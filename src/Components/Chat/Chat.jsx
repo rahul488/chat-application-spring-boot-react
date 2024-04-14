@@ -1,9 +1,9 @@
-import React, { useRef } from "react";
-import { Box, Avatar, Typography, IconButton } from "@mui/material";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
-import { useChatContext } from "../../Context/ChatProvider";
-import MessageAction from "./MessageAction";
-import UserChats from "./UserChats";
+import React, { useRef } from 'react';
+import { Box, Avatar, Typography, IconButton } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { useChatContext } from '../../Context/ChatProvider';
+import MessageAction from './MessageAction';
+import UserChats from './UserChats';
 
 function Chat() {
   const { client, selectedChat } = useChatContext();
@@ -15,13 +15,13 @@ function Chat() {
         <>
           <Box
             sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              backgroundColor: "CaptionText",
-              background: "linear-gradient(to right, #ff7e5f, #feb47b)",
+              display: 'flex',
+              justifyContent: 'space-between',
+              backgroundColor: 'CaptionText',
+              background: 'linear-gradient(to right, #ff7e5f, #feb47b)',
             }}
           >
-            <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Avatar alt="Rahul" src="./vite.svg" />
               <Typography variant="subtitle1">
                 {selectedChat.groupName}
@@ -33,10 +33,10 @@ function Chat() {
           </Box>
           <Box
             sx={{
-              height: "500px",
-              overflowY: "auto",
+              height: '500px',
+              overflowY: 'auto',
               p: 2,
-              scrollBehavior: "smooth",
+              scrollBehavior: 'smooth',
             }}
             ref={chatContainerRef}
           >
@@ -44,7 +44,7 @@ function Chat() {
             <UserChats ref={chatContainerRef} />
           </Box>
           <Box>
-            <Box sx={{ display: "flex", justifyContent: "center" }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
               <MessageAction
                 client={client}
                 chatId={selectedChat.id}
@@ -56,17 +56,17 @@ function Chat() {
       ) : (
         <Box
           sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "500px",
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '500px',
           }}
         >
           <Typography
             sx={{
-              textTransform: "uppercase",
-              fontStyle: "italic",
-              color: "Background",
+              textTransform: 'uppercase',
+              fontStyle: 'italic',
+              color: 'Background',
             }}
           >
             Select user from sidebar to begin chat

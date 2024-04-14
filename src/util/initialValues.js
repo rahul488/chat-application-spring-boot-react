@@ -1,10 +1,10 @@
 export const loginInitialValue = {
-    email:'',
-    password:''
-}
+  email: '',
+  password: '',
+};
 export const signupInitialvalue = {
-    name:'',
-    email:'',
-    password:'',
-    confirmPassword:''
-}
+  name: '',
+  email: '',
+  password: '',
+  confirmPassword: '',
+};

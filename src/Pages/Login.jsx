@@ -1,26 +1,25 @@
-import React from "react";
-import { Box, Typography, Button } from "@mui/material";
-import { FormProvider, useForm } from "react-hook-form";
-import { loginSchema } from "../util/schema";
-import { loginInitialValue } from "../util/initialValues";
-import AppInput from "../Form/Input";
-import { Link, Navigate, useNavigate } from "react-router-dom";
-import useFetch from "../hooks/useFetch";
-import { LOGIN_USER } from "../util/helper";
-import { toast } from "react-toastify";
-import useLocalStorage from "../hooks/useLocalStorage";
-import { StyledBox } from "../Components/Style/LoginBox";
-
+import React from 'react';
+import { Box, Typography, Button } from '@mui/material';
+import { FormProvider, useForm } from 'react-hook-form';
+import { loginSchema } from '../util/schema';
+import { loginInitialValue } from '../util/initialValues';
+import AppInput from '../Form/Input';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import useFetch from '../hooks/useFetch';
+import { LOGIN_USER } from '../util/helper';
+import { toast } from 'react-toastify';
+import useLocalStorage from '../hooks/useLocalStorage';
+import { StyledBox } from '../Components/Style/LoginBox';
 
 function Login() {
   const fetchAndSubmitData = useFetch();
   const navigate = useNavigate();
   const { setDataInLocalStorage, getDataFromLocalStorage } = useLocalStorage();
 
-  const user = getDataFromLocalStorage("loggedInuser");
+  const user = getDataFromLocalStorage('loggedInuser');
 
   const formProps = useForm({
-    mode: "all",
+    mode: 'all',
     resolver: loginSchema,
     defaultValues: loginInitialValue,
   });
@@ -28,20 +27,20 @@ function Login() {
   async function onSubmit(values) {
     try {
       const res = await fetchAndSubmitData(LOGIN_USER, {
-        method: "POST",
+        method: 'POST',
         body: JSON.stringify(values),
       });
       const data = await res.json();
       const { accessToken, id } = data.data;
-      setDataInLocalStorage("loggedInuser", {
+      setDataInLocalStorage('loggedInuser', {
         accessToken,
         id,
       });
       toast(data.message);
-      navigate("/home");
+      navigate('/home');
     } catch (e) {
-      toast("Invalid U/P");
-      console.log("error", e);
+      toast('Invalid U/P');
+      console.log('error', e);
     }
   }
   if (user) {
@@ -50,10 +49,10 @@ function Login() {
   return (
     <Box
       sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "500px",
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '500px',
       }}
     >
       <FormProvider {...formProps}>
@@ -64,11 +63,11 @@ function Login() {
             <AppInput name="password" label="Password" type="password" />
             <Box
               sx={{
-                display: "flex",
-                justifyContent: "center",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "0.4rem",
+                display: 'flex',
+                justifyContent: 'center',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '0.4rem',
               }}
             >
               <Button type="submit" color="success" variant="contained">
@@ -76,13 +75,13 @@ function Login() {
               </Button>
               <Link
                 to="/signup"
-                style={{ textDecoration: "none", color: "black" }}
+                style={{ textDecoration: 'none', color: 'black' }}
               >
                 Create Account
               </Link>
               <Link
                 to="/signup"
-                style={{ textDecoration: "none", color: "black" }}
+                style={{ textDecoration: 'none', color: 'black' }}
               >
                 Forgot Passsword
               </Link>
