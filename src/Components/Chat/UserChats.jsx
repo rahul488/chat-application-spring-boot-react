@@ -9,7 +9,7 @@ import useScreenSize from '../../hooks/useScreenSize';
 
 const UserChats = forwardRef((props, ref) => {
   const [messages, setMessage] = useState([]);
-  const [totalPages, setTotalPages] = useState(0);
+  const [totalPages, setTotalPages] = useState(null);
   const { client, selectedChat } = useChatContext();
   const [isMessageSend, setMessageSend] = useState(false);
   const isMouted = useRef(true);
@@ -41,6 +41,8 @@ const UserChats = forwardRef((props, ref) => {
     if (client) {
       setPage(0);
       setMessage([]);
+      setMessageSend(false);
+      isMouted.current = true;
       client.publish({
         destination: getAlllMessages,
         body: JSON.stringify({ chatId: selectedChat?.id, pageNumber: 0 }),
@@ -75,17 +77,18 @@ const UserChats = forwardRef((props, ref) => {
         subscribeLastMessage.unsubscribe();
       };
     }
-  }, [client, selectedChat]);
+  }, [client, selectedChat?.id]);
 
   /**For getting older message */
-  useEffect(() => {
-    if (page > 0) {
-      client.publish({
-        destination: getAlllMessages,
-        body: JSON.stringify({ chatId: selectedChat?.id, pageNumber: page }),
-      });
-    }
-  }, [page, selectedChat]);
+  // useEffect(() => {
+  //   if (page > 0) {
+  //     client.publish({
+  //       destination: getAlllMessages,
+  //       body: JSON.stringify({ chatId: selectedChat?.id, pageNumber: page }),
+  //     });
+  //   }
+
+  // }, [page, selectedChat?.id]);
 
   const getBackground = senderId => {
     if (senderId == user.id) {
