@@ -27,6 +27,8 @@ public class Messages {
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt=new Date();
 
+    private boolean isRead;
+
     @ManyToOne
     @JsonIgnore
     private Chat chat;

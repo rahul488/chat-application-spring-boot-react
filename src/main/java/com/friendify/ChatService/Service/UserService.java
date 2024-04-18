@@ -11,9 +11,12 @@ import com.friendify.ChatService.Util.JwtUtil;
 import com.friendify.ChatService.Util.UserCustomDetailService;
 import com.friendify.ChatService.Util.UserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,6 +40,7 @@ public class UserService {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
+
     public CommonResponse<?> signup(@RequestBody UserSignUpRequestDTO customerRequestDto) {
 
         User isCustomerExist = userRepo.findByEmail(customerRequestDto.getEmail()).orElse(null);
@@ -58,7 +62,8 @@ public class UserService {
         String userName = customerSignInRequestDto.getEmail();
         String password = customerSignInRequestDto.getPassword();
         try {
-            authManager.authenticate(new UsernamePasswordAuthenticationToken(userName, password));
+            Authentication authenticate = authManager.authenticate(new UsernamePasswordAuthenticationToken(userName, password));
+            SecurityContextHolder.getContext().setAuthentication(authenticate);
         } catch (Exception e) {
             throw new InvalidCredentialsException("Invalid U/P");
         }

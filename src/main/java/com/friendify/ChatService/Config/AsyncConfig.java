@@ -1,4 +1,4 @@
-package com.friendify.ChatService.Controller;
+package com.friendify.ChatService.Config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

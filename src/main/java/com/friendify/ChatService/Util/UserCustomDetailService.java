@@ -20,6 +20,8 @@ public class UserCustomDetailService implements UserDetails {
 
     private int id;
 
+    private User user;
+
     public UserCustomDetailService(User userInfo) {
         email=userInfo.getEmail();
         password=userInfo.getPassword();
@@ -28,6 +30,7 @@ public class UserCustomDetailService implements UserDetails {
                 .collect(Collectors.toList());
         name = userInfo.getName();
         id = userInfo.getId();
+        user = userInfo;
     }
 
     @Override
@@ -47,6 +50,10 @@ public class UserCustomDetailService implements UserDetails {
 
     public String getName(){
         return name;
+    }
+
+    public User getLoggedInUser() {
+        return user;
     }
 
     public int getUserId() {return  id;}

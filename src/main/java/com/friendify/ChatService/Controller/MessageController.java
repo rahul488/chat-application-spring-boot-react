@@ -1,5 +1,6 @@
 package com.friendify.ChatService.Controller;
 
+import com.friendify.ChatService.Dto.FriendDTO;
 import com.friendify.ChatService.Dto.Conversion;
 import com.friendify.ChatService.Dto.MessageRequestDTO;
 import com.friendify.ChatService.Repo.UserRepo;
@@ -8,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,9 +31,9 @@ public class MessageController {
     }
 
     //get all users
-    @MessageMapping("/users/{userId}")
-    public void getUser(@DestinationVariable int userId){
-        messageService.getAllUsers(userId);
+    @MessageMapping("/users")
+    public void getUser(@RequestBody FriendDTO friendDTO){
+        messageService.getAllUsers(friendDTO);
     }
 
     //start chat
@@ -47,5 +47,24 @@ public class MessageController {
         messageService.getAllMessagesByChatId(messageRequestDTO.getPageNumber(),messageRequestDTO.getChatId());
     }
 
+    @MessageMapping("/user/get-friends")
+    public void getAllFriends(@RequestBody FriendDTO friendDTO){
+        messageService.getFriendList(friendDTO);
+    }
+
+    @MessageMapping("/user/add-friend")
+    public void sentFriendRequest(@RequestBody FriendDTO requestDto){
+        messageService.sentFriendRequest(requestDto);
+    }
+
+    @MessageMapping("/user/accept-friend-request/{friendShipId}")
+    public void acceptFriendRequest(@DestinationVariable int friendShipId){
+        messageService.acceptFriendRequest(friendShipId);
+    }
+
+    @MessageMapping("/user/get-friend-request/{userId}")
+    public void getFriendRequests(@DestinationVariable int userId){
+        messageService.getFriendRequestList(userId);
+    }
 
 }

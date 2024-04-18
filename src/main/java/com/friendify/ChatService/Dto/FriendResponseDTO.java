@@ -1,23 +1,17 @@
 package com.friendify.ChatService.Dto;
 
-import com.friendify.ChatService.Entity.Messages;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class UserResponse {
+public class FriendResponseDTO {
 
     private int id;
 
-    private int chatId;
-
     private String name;
 
-    private Messages lastMessage;
+    private boolean isFriend=false;
 }

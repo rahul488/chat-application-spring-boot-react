@@ -5,9 +5,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 public class User {
@@ -32,11 +30,23 @@ public class User {
     @JsonIgnore
     private Set<Chat> chats = new HashSet<>();
 
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    private Set<FriendShip> initiatedFriendships = new HashSet<>();
+
+    @OneToMany(mappedBy = "friend")
+    @JsonIgnore
+    private Set<FriendShip> receivedFriendships = new HashSet<>();
+
     public User() {
 
     }
 
-    public User(int id, String name, String email, String password, String role, Date createAt, Set<Chat> chats) {
+
+    public User(int id, String name, String email,
+                String password, String role, Date createAt,
+                Set<Chat> chats, Set<FriendShip> initiatedFriendships,
+                Set<FriendShip> receivedFriendships) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -44,6 +54,8 @@ public class User {
         this.role = role;
         this.createAt = createAt;
         this.chats = chats;
+        this.initiatedFriendships = initiatedFriendships;
+        this.receivedFriendships = receivedFriendships;
     }
 
     public int getId() {
@@ -100,5 +112,22 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+
+    public Set<FriendShip> getInitiatedFriendships() {
+        return initiatedFriendships;
+    }
+
+    public void setInitiatedFriendships(Set<FriendShip> initiatedFriendships) {
+        this.initiatedFriendships = initiatedFriendships;
+    }
+
+    public Set<FriendShip> getReceivedFriendships() {
+        return receivedFriendships;
+    }
+
+    public void setReceivedFriendships(Set<FriendShip> receivedFriendships) {
+        this.receivedFriendships = receivedFriendships;
     }
 }
