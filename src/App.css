@@ -3,6 +3,11 @@
   padding: 0;
   box-sizing: border-box;
 }
+
+.friends-card {
+  background-color: #16a085;
+  background-image: linear-gradient(132deg, #16a085 0%, #f4d03f 100%);
+}
 /* For webkit based browsers */
 /* Width and Height of the scrollbar */
 ::-webkit-scrollbar {

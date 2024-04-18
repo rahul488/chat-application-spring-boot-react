@@ -1,26 +1,41 @@
 import { useEffect, useState } from 'react';
+import { useChatContext } from '../Context/ChatProvider';
 
-const useScroll = (ref, totalPages) => {
+const useScroll = (ref, totalPages, scrollDown = false) => {
   const [isFetching, setFetching] = useState(false);
   const [page, setPage] = useState(0);
+  const { selectedChat } = useChatContext();
 
   function handleScroll() {
-    if (ref.current.scrollTop == 0 && page <= totalPages - 1 && !isFetching) {
+    if (
+      !scrollDown &&
+      ref.current.scrollTop == 5 &&
+      page < totalPages &&
+      !isFetching
+    ) {
       ref.current.scrollTop = 200;
       setFetching(true);
       setPage(prev => prev + 1);
+    } else {
+      if (
+        ref.current.innerHeight + ref.current.scrollTop >=
+        ref.current.offsetHeight
+      ) {
+        setFetching(true);
+        setPage(prev => prev + 1);
+      }
     }
   }
 
   useEffect(() => {
-    if (ref.current && page <= totalPages - 1) {
+    if (ref.current && page < totalPages) {
       const target = ref.current;
       target.addEventListener('scroll', handleScroll);
       return () => {
         target.removeEventListener('scroll', handleScroll);
       };
     }
-  }, [ref, totalPages, page, isFetching]);
+  }, [ref, totalPages, page, isFetching, selectedChat?.id, scrollDown]);
 
   return { isFetching, setFetching, page, setPage };
 };

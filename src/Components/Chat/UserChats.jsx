@@ -15,7 +15,7 @@ const UserChats = forwardRef((props, ref) => {
   const isMouted = useRef(true);
   const { subscribe } = sendOrReceiveMessage(selectedChat?.id);
   const { subscribe: subscribeAllMessage, publish: getAlllMessages } =
-    getMessages();
+    getMessages(selectedChat?.id);
   const { getDataFromLocalStorage } = useLocalStorage();
   const { setFetching, page, setPage } = useScroll(ref, totalPages);
   const { isSmall, isExtraSmall } = useScreenSize();

@@ -1,11 +1,21 @@
 import * as React from 'react';
 import AppBar from '@mui/material/AppBar';
-import { Box, Button, Toolbar, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  IconButton,
+  Toolbar,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import PeopleIcon from '@mui/icons-material/People';
+import { useDrwaerContext } from '../../Context/DrawerProvider';
 
 export default function Header() {
   const router = useNavigate();
   const user = JSON.parse(localStorage.getItem('loggedInuser'));
+  const { handleFriendDispaly } = useDrwaerContext();
 
   function handleLogout() {
     localStorage.clear();
@@ -18,14 +28,24 @@ export default function Header() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             FriendZone
           </Typography>
+
           {!user ? (
-            <Button color="inherit" onClick={() => router('/')}>
-              Login
-            </Button>
+            <>
+              <Button color="inherit" onClick={() => router('/')}>
+                Login
+              </Button>
+            </>
           ) : (
-            <Button color="inherit" onClick={handleLogout}>
-              Logout
-            </Button>
+            <>
+              <Tooltip title="People">
+                <IconButton onClick={handleFriendDispaly}>
+                  <PeopleIcon />
+                </IconButton>
+              </Tooltip>
+              <Button color="inherit" onClick={handleLogout}>
+                Logout
+              </Button>
+            </>
           )}
         </Toolbar>
       </AppBar>

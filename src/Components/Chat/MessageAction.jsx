@@ -24,6 +24,7 @@ function MessageAction({ client = null, chatId, receipants = [] }) {
         message: inputVal.trim(),
         senderId: user.id,
         chatId: chatId,
+        pageNumber: 0, //TODO:- WILL IMPLEMENT PAGINATION
         recipientId: receipants.map(rec => rec.id),
       };
       client &&

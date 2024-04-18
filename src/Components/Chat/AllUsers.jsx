@@ -6,10 +6,10 @@ import { getTime, getWeekDays } from '../../util/time';
 import useLocalStorage from '../../hooks/useLocalStorage';
 
 function AllUsers({ users }) {
-  const { subscribe, publish } = getSelectedChats();
-  const { handleSelectedChat, client } = useChatContext();
+  const { handleSelectedChat, client, selectedChat } = useChatContext();
   const { getDataFromLocalStorage } = useLocalStorage();
   const loggedInUser = getDataFromLocalStorage('loggedInuser');
+  const { subscribe, publish } = getSelectedChats(loggedInUser.id);
   const allUsers = users?.filter(us => us.id !== loggedInUser.id) || [];
   const [subscription, setSubscription] = useState(null);
 
