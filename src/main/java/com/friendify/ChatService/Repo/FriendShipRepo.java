@@ -13,7 +13,7 @@ public interface FriendShipRepo extends JpaRepository<FriendShip,Integer> {
 
     FriendShip findByUserAndFriend(User user, User friend);
 
-    @Query("SELECT fp FROM FriendShip fp WHERE fp.user.id = :userId AND fp.accepted = true")
+    @Query("SELECT fp FROM FriendShip fp WHERE fp.user.id = :userId AND fp.accepted = true OR fp.friend.id = :userId AND fp.accepted = true")
     Page<FriendShip> getAllFriends(Pageable pageable, int userId);
 
     @Query("SELECT fp FROM FriendShip fp WHERE fp.friend.id = :userId AND fp.accepted = false")

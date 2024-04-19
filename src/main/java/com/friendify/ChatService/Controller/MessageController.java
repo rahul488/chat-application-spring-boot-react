@@ -67,4 +67,9 @@ public class MessageController {
         messageService.getFriendRequestList(userId);
     }
 
+    @MessageMapping("/user/get-friendRequest-notification/{userId}")
+    public void getPendingFriendRequestCount(@DestinationVariable int userId){
+        messageService.getPendingRequestNotification(userId);
+    }
+
 }

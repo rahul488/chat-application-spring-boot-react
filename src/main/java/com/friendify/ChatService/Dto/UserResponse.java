@@ -15,7 +15,7 @@ public class UserResponse {
 
     private int id;
 
-    private int chatId;
+    private Integer chatId;
 
     private String name;
 

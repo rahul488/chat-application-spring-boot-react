@@ -38,6 +38,10 @@ public class User {
     @JsonIgnore
     private Set<FriendShip> receivedFriendships = new HashSet<>();
 
+    @OneToMany(mappedBy = "user")
+    @Cascade(CascadeType.ALL)
+    private List<Notification> notifications;
+
     public User() {
 
     }
@@ -46,7 +50,7 @@ public class User {
     public User(int id, String name, String email,
                 String password, String role, Date createAt,
                 Set<Chat> chats, Set<FriendShip> initiatedFriendships,
-                Set<FriendShip> receivedFriendships) {
+                Set<FriendShip> receivedFriendships, List<Notification> notifications) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -56,6 +60,7 @@ public class User {
         this.chats = chats;
         this.initiatedFriendships = initiatedFriendships;
         this.receivedFriendships = receivedFriendships;
+        this.notifications = notifications;
     }
 
     public int getId() {
@@ -129,5 +134,13 @@ public class User {
 
     public void setReceivedFriendships(Set<FriendShip> receivedFriendships) {
         this.receivedFriendships = receivedFriendships;
+    }
+
+    public List<Notification> getNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(List<Notification> notifications) {
+        this.notifications = notifications;
     }
 }

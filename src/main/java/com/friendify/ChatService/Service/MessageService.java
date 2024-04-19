@@ -1,16 +1,10 @@
 package com.friendify.ChatService.Service;
 
 import com.friendify.ChatService.Dto.*;
-import com.friendify.ChatService.Entity.Chat;
-import com.friendify.ChatService.Entity.FriendShip;
-import com.friendify.ChatService.Entity.Messages;
-import com.friendify.ChatService.Entity.User;
+import com.friendify.ChatService.Entity.*;
 import com.friendify.ChatService.Exception.CommonException;
 import com.friendify.ChatService.Exception.UserNotFoundException;
-import com.friendify.ChatService.Repo.ChatRepo;
-import com.friendify.ChatService.Repo.FriendShipRepo;
-import com.friendify.ChatService.Repo.MessageRepo;
-import com.friendify.ChatService.Repo.UserRepo;
+import com.friendify.ChatService.Repo.*;
 import com.friendify.ChatService.Util.UserCustomDetailService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +13,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -46,6 +41,9 @@ public class MessageService {
     @Autowired
     private FriendShipRepo friendShipRepo;
 
+    @Autowired
+    private NotificationRepo notificationRepo;
+
     public Integer getCurrentUserId() {
         Integer userId = null;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -63,7 +61,6 @@ public class MessageService {
         }
         return userId;
     }
-
 
     @Transactional
     public void sendMessage(MessageRequestDTO message){
@@ -87,8 +84,8 @@ public class MessageService {
         userResponse.setId(senderUser.getId());
         userResponse.setChatId(chat.getId());
         userResponse.setName(senderUser.getName());
-        message.getRecipientId().stream().forEach((user) -> {
-            messagingTemplate.convertAndSend("/topic/update-last-message/"+user,userResponse);
+        message.getRecipientId().stream().forEach((id) -> {
+            messagingTemplate.convertAndSend("/topic/update-last-message/"+id,userResponse);
         });
 
     }
@@ -130,30 +127,18 @@ public class MessageService {
         Set<User> users = conversion.getRecipientsId()
                 .stream().map((rec) -> userRepo.findById(rec).orElse(null))
                 .collect(Collectors.toSet());
-        Chat chat =null;
-        Chat isChatExist = chatRepo.findChatByUsers(conversion.getRecipientsId(),conversion.getRecipientsId().size());
+        Chat chat = chatRepo.findChatByUsers(conversion.getRecipientsId(),conversion.getRecipientsId().size());
         String groupName = users
                 .stream()
                 .filter((user) -> user.getId() != conversion.getSenderId())
                 .map((user) -> user.getName())
                 .collect(Collectors.joining(","))
                 .toString();
-        if(isChatExist != null) {
-           /**
-            *  NOTE-Group name will automatically save in db as this method is annotated
-            *       with @Transactional we don't need to explicitly do save method.
-            * **/
-           isChatExist.setGroupName(groupName);
-           chat=isChatExist;
-        }
-        else{
-           chat = new Chat();
-           chat.setUsers(users);
-           chat.setGroupName(groupName);
-           senderUser.getChats().add(chat);
-           chatRepo.save(chat);
-        }
-        messagingTemplate.convertAndSend("/topic/start-chat/"+conversion.getSenderId(), chat);
+        SelectedChatResponse chatResponse = new SelectedChatResponse();
+        chatResponse.setId(chat.getId());
+        chatResponse.setGroupName(groupName);
+        chatResponse.setUsers(chat.getUsers());
+        messagingTemplate.convertAndSend("/topic/start-chat/"+conversion.getSenderId(), chatResponse);
     }
 
     public void getAllMessagesByChatId(int pageNumber,int chatId){
@@ -173,23 +158,62 @@ public class MessageService {
         if(friend == null || currUser == null){
             throw new UserNotFoundException("User not found");
         }
+        FriendShip isAlreadyFriend = friendShipRepo.findByUserAndFriend(currUser, friend);
+        if (isAlreadyFriend != null) {
+           throw new CommonException("Friendship already exist");
+        }
         FriendShip friendship = new FriendShip();
         friendship.setUser(currUser);
         friendship.setFriend(friend);
         friendship.setAccepted(false);
         friendShipRepo.save(friendship);
 
-        //notify friend
-        //messagingTemplate.convertAndSend("/topic/notification/"+requestDto.getFriendId(),currUser);
-
         FriendResponseDTO friendResponseDTO = new FriendResponseDTO();
         friendResponseDTO.setFriend(true);
         friendResponseDTO.setName(friend.getName());
         friendResponseDTO.setId(friend.getId());
 
-       messagingTemplate.convertAndSend("/topic/request-status/"+currUser.getId(),friendResponseDTO);
+        messagingTemplate.convertAndSend("/topic/request-status/"+currUser.getId(),friendResponseDTO);
+
+        notifyFriend(currUser,friend);
+        updateRequestWithFriend(friendResponseDTO,currUser, friend);
     }
 
+
+
+//    @Async("asyncTaskExecutor")
+    public void updateRequestWithFriend(FriendResponseDTO friendResponseDTO, User currUser, User friend){
+        friendResponseDTO.setName(currUser.getName());
+        friendResponseDTO.setFriend(false);
+        friendResponseDTO.setId(currUser.getId());
+        messagingTemplate.convertAndSend("/topic/update-last-friend-request/"+friend.getId(),friendResponseDTO);
+    }
+//    @Async("asyncTaskExecutor")
+    public void notifyFriend(User currUser, User friend){
+        Notification notification = new Notification();
+        notification.setNotificationType(NotificationStatus.NEW_FRIEND_REQUEST);
+        notification.setActive(true);
+        notification.setUser(friend);
+
+        notificationRepo.save(notification);
+
+        List<Notification> notifications = notificationRepo.getFriendRequestNotifications(friend.getId(),NotificationStatus.NEW_FRIEND_REQUEST);
+
+        messagingTemplate.convertAndSend("/topic/notification/"+friend.getId(),notifications.size());
+
+    }
+
+    public void getPendingRequestNotification(int userId){
+        List<Notification> notifications = notificationRepo.getFriendRequestNotifications(userId,NotificationStatus.NEW_FRIEND_REQUEST);
+
+        messagingTemplate.convertAndSend("/topic/notification/"+userId,notifications.size());
+    }
+
+    public void getAllPendingNotifications(){
+
+    }
+
+    @Transactional
     public void acceptFriendRequest(int friendShipId){
         FriendShip friendExist = friendShipRepo.findById(friendShipId).orElse(null);
         if(friendExist == null) throw new CommonException("Friend doesn't exist");
@@ -200,8 +224,15 @@ public class MessageService {
         }
         FriendResponseDTO friendResponseDTO = new FriendResponseDTO();
         friendResponseDTO.setId(friendship.getId());
-        friendResponseDTO.setName(friendship.getFriend().getName());
+        friendResponseDTO.setName(friendship.getUser().getName());
         friendResponseDTO.setFriend(true);
+
+        //create chatId
+        Chat chat = new Chat();
+        chat.setUsers(Arrays.asList(friendship.getUser(),friendship.getFriend()).stream().collect(Collectors.toSet()));
+        friendship.getUser().getChats().add(chat);
+        friendship.getFriend().getChats().add(chat);
+        chatRepo.save(chat);
         messagingTemplate.convertAndSend("/topic/update-friend-request/"+friendShipId, friendResponseDTO);
 
     }
@@ -211,7 +242,14 @@ public class MessageService {
         if(user == null) throw new UserNotFoundException("User not found");
         Pageable pageable = PageRequest.of(friendDTO.getPageNumber(),10);
         Page<FriendShip> friendShips = friendShipRepo.getAllFriends(pageable,friendDTO.getUserId());
-        List<User> users = friendShips.getContent().stream().map((friendShip) -> friendShip.getFriend()).collect(Collectors.toList());
+        List<User> users = new ArrayList<>();
+        friendShips.getContent().stream().forEach((friendShip) -> {
+            if(friendShip.getFriend().getId() != friendDTO.getUserId()){
+                users.add(friendShip.getFriend());
+            }else{
+                users.add(friendShip.getUser());
+            }
+        });
         List<UserResponse> userResponses = getFriendListWithLastMessage(users,user.getId());
         Page<UserResponse> pageResponse = new PageImpl<>(userResponses,pageable,friendShips.getTotalElements());
         messagingTemplate.convertAndSend("/topic/get-friend-list/"+friendDTO.getUserId(), pageResponse);
@@ -227,7 +265,7 @@ public class MessageService {
 
         friendRequests.forEach((friend) -> {
             FriendResponseDTO friendResponseDTO = new FriendResponseDTO();
-            friendResponseDTO.setId(friend.getId());
+            friendResponseDTO.setId(friend.getUser().getId());
             friendResponseDTO.setName(friend.getUser().getName());
             friendResponseDTO.setFriend(false);
             friendResponseDTOList.add(friendResponseDTO);
@@ -242,16 +280,19 @@ public class MessageService {
             if (user.getId() != userId) {
                 Chat chat = chatRepo.findChatByUsers(Arrays.asList(userId, user.getId()),2);
                 Messages lastMessage;
+                UserResponse userResponse = new UserResponse();
                 if(chat == null) {
                     lastMessage = null;
+                    userResponse.setChatId(null);
                 }else{
                     lastMessage = messageRepo.findLastChatMessages(chat.getId());
+                    userResponse.setChatId(chat.getId());
                 }
-                UserResponse userResponse = new UserResponse();
+
                 userResponse.setLastMessage(lastMessage);
                 userResponse.setId(user.getId());
                 userResponse.setName(user.getName());
-                userResponse.setChatId(chat.getId());
+
                 userResponses.add(userResponse);
             }
         }
