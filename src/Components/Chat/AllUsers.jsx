@@ -5,7 +5,7 @@ import { useChatContext } from '../../Context/ChatProvider';
 import { getTime, getWeekDays } from '../../util/time';
 import useLocalStorage from '../../hooks/useLocalStorage';
 
-function AllUsers({ users }) {
+function AllUsers({ users, setUsers }) {
   const { handleSelectedChat, client, selectedChat } = useChatContext();
   const { getDataFromLocalStorage } = useLocalStorage();
   const loggedInUser = getDataFromLocalStorage('loggedInuser');

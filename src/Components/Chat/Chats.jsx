@@ -35,7 +35,7 @@ function ChatSidebar() {
   useEffect(() => {
     if (client) {
       const subscribeLastMsg = client.subscribe(
-        subscribeLastMessage + `/${user.id}`,
+        subscribeLastMessage + `/${user?.id}`,
         msg => {
           const message = JSON.parse(msg.body);
           const updatedUser = users.map(user => {
@@ -56,7 +56,7 @@ function ChatSidebar() {
 
   return (
     <Box sx={{ height: '620px', overflowY: 'auto', marginRight: '0.5rem' }}>
-      <AllUsers users={users} />
+      <AllUsers users={users} setUsers={setUsers} />
     </Box>
   );
 }

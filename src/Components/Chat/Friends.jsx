@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   Avatar,
+  Badge,
   Box,
   Button,
   Card,
@@ -11,6 +12,7 @@ import {
 import {
   acceptFriendRequest,
   getFriendRequests,
+  getFriendRequestsNotification,
   getUsers,
   sentFriendRequest,
 } from '../../util/helper';
@@ -24,6 +26,7 @@ function Friends() {
   const { client } = useChatContext();
   const { getDataFromLocalStorage } = useLocalStorage();
   const user = getDataFromLocalStorage('loggedInuser');
+  const [friendRequestCount, setFriendRequestCount] = useState(0);
   const { subscribe, publish } = getUsers(user.id);
   const { publish: sentRequest, subscribe: getAcknowledge } = sentFriendRequest(
     user.id,
@@ -31,13 +34,42 @@ function Friends() {
   const {
     publish: callFriendRequestList,
     subscribe: subscribeFriendRequestList,
+    getLastFriendRequest,
   } = getFriendRequests(user.id);
+  const {
+    subscribe: getFriendrequestCount,
+    publish: callFriendRequestNotification,
+  } = getFriendRequestsNotification(user.id);
 
   const { publish: acceptRequest, subscribe: subscribeUpdatedRequest } =
     acceptFriendRequest();
 
   useEffect(() => {
     getAllFriends();
+    if (client) {
+      client.publish({
+        destination: callFriendRequestNotification,
+      });
+      const notificstionSubscriber = client.subscribe(
+        getFriendrequestCount,
+        count => {
+          setFriendRequestCount(+count.body);
+        },
+      );
+      //update pending friend request on recevier site
+      const receiverSubscriber = client.subscribe(
+        getLastFriendRequest,
+        user => {
+          const updatedUser = JSON.parse(user.body);
+          setpeople(prev => [updatedUser, ...prev]);
+        },
+      );
+
+      return () => {
+        notificstionSubscriber.unsubscribe();
+        //receiverSubscriber.unsubscribe();
+      };
+    }
   }, [client]);
 
   function handleSentRequest(friendId) {
@@ -52,18 +84,21 @@ function Friends() {
           friendId: friendId,
         }),
       });
-      const response = client.subscribe(getAcknowledge, user => {
-        const updatedUser = JSON.parse(user.body);
-        const updatedPeople = people.map(user => {
-          if (user.id === updatedUser.id) {
-            return { ...user, ...updatedUser };
-          } else {
-            return { ...user };
-          }
-        });
-        setpeople(updatedPeople);
-      });
-      setSubscribeChannel(response);
+      const senderSubscription = client.subscribe(
+        getAcknowledge(user.id),
+        user => {
+          const updatedUser = JSON.parse(user.body);
+          const updatedPeople = people.map(user => {
+            if (user.id === updatedUser.id) {
+              return { ...user, ...updatedUser };
+            } else {
+              return { ...user };
+            }
+          });
+          setpeople(updatedPeople);
+        },
+      );
+      setSubscribeChannel(senderSubscription);
     }
   }
 
@@ -146,65 +181,75 @@ function Friends() {
           sx={{ cursor: 'pointer' }}
           onClick={getAllFriends}
         />
-        <Chip
-          label="Friend Requests"
-          variant="filled"
-          color="secondary"
-          sx={{ cursor: 'pointer' }}
-          onClick={getPendingRequests}
-        />
-      </Box>
-      {people.map(currUser => (
-        <Card
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            margin: '0.5rem 0.5rem',
-            padding: '0.5rem 0.5rem',
-            alignItems: 'center',
-          }}
-          key={currUser.id}
-          className="friends-card"
-        >
-          <Avatar
-            alt="Rahul"
-            src="./vite.svg"
-            sx={{
-              height: '40px',
-              width: '40px',
-              borderRadius: '40px',
-              boxShadow: 'rgba(0, 0, 0, 0.35) 0px 5px 15px',
-            }}
+        <Badge badgeContent={friendRequestCount} color="warning">
+          <Chip
+            label="Friend Requests"
+            variant="filled"
+            color="secondary"
+            sx={{ cursor: 'pointer' }}
+            onClick={getPendingRequests}
           />
-          <CardContent>
-            <Typography variant="h6" component="div">
-              {currUser.name}
-            </Typography>
-            <Typography variant="body2">One mutual friend</Typography>
-            <Box mt={2}>
-              {isFriendRequestList ? (
-                <Button
-                  color="warning"
-                  variant="contained"
-                  disabled={currUser.friend || false}
-                  onClick={() => acceptPendingFriendRequest(currUser.id)}
-                >
-                  {currUser?.friend ? 'Accepted' : 'Accept'}
-                </Button>
-              ) : (
-                <Button
-                  color="success"
-                  variant="contained"
-                  disabled={currUser.friend || false}
-                  onClick={() => handleSentRequest(currUser.id)}
-                >
-                  {currUser?.friend ? 'Requested' : 'Add Friend'}
-                </Button>
-              )}
-            </Box>
-          </CardContent>
-        </Card>
-      ))}
+        </Badge>
+      </Box>
+      {people.length == 0 ? (
+        <Box sx={{ height: '300px', marginTop: '50%' }}>
+          <Typography variant="h5" textAlign="center">
+            {isFriendRequestList ? 'No Request Found ' : 'No Friends Found'}
+          </Typography>
+        </Box>
+      ) : (
+        people.map(currUser => (
+          <Card
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              margin: '0.5rem 0.5rem',
+              padding: '0.5rem 0.5rem',
+              alignItems: 'center',
+            }}
+            key={currUser.id}
+            className="friends-card"
+          >
+            <Avatar
+              alt="Rahul"
+              src="./vite.svg"
+              sx={{
+                height: '40px',
+                width: '40px',
+                borderRadius: '40px',
+                boxShadow: 'rgba(0, 0, 0, 0.35) 0px 5px 15px',
+              }}
+            />
+            <CardContent>
+              <Typography variant="h6" component="div">
+                {currUser.name}
+              </Typography>
+              <Typography variant="body2">One mutual friend</Typography>
+              <Box mt={2}>
+                {isFriendRequestList ? (
+                  <Button
+                    color="warning"
+                    variant="contained"
+                    disabled={currUser.friend || false}
+                    onClick={() => acceptPendingFriendRequest(currUser.id)}
+                  >
+                    {currUser?.friend ? 'Accepted' : 'Accept'}
+                  </Button>
+                ) : (
+                  <Button
+                    color="success"
+                    variant="contained"
+                    disabled={currUser.friend || false}
+                    onClick={() => handleSentRequest(currUser.id)}
+                  >
+                    {currUser?.friend ? 'Requested' : 'Add Friend'}
+                  </Button>
+                )}
+              </Box>
+            </CardContent>
+          </Card>
+        ))
+      )}
     </Box>
   );
 }

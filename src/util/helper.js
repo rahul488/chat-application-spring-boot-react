@@ -23,7 +23,7 @@ export const getAllFriends = userId => ({
 export const sentFriendRequest = userId => ({
   // publish: (friendId) =>`/app/user/add-friend`,
   publish: `/app/user/add-friend`,
-  subscribe: `/topic/request-status/${userId}`,
+  subscribe: currUserId => `/topic/request-status/${currUserId}`,
 });
 
 export const acceptFriendRequest = () => ({
@@ -34,6 +34,12 @@ export const acceptFriendRequest = () => ({
 export const getFriendRequests = userId => ({
   publish: `/app/user/get-friend-request/${userId}`,
   subscribe: `/topic/get-friend-request-list/${userId}`,
+  getLastFriendRequest: `/topic/update-last-friend-request/${userId}`,
+});
+
+export const getFriendRequestsNotification = userId => ({
+  publish: `/app/user/get-friendRequest-notification/${userId}`,
+  subscribe: `/topic/notification/${userId}`,
 });
 
 //user related APIS

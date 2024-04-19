@@ -17,14 +17,24 @@ function Home() {
     <Box
       sx={{
         display: 'flex',
-        // gap:'0.5rem',
         justifyContent: `${!isSmall && isFriendListOpen ? 'space-between' : ''}`,
         boxShadow: '0px 10px 15px -3px rgba(0,0,0,0.1)',
       }}
       p={2}
     >
       {isSmall || isExtraSmall ? (
-        selectedChat ? (
+        isFriendListOpen ? (
+          <Box
+            sx={{
+              width: `400px`,
+              overflowY: 'auto',
+              height: '620px',
+              boxShadow: 'rgba(0, 0, 0, 0) 0px 5px 15px',
+            }}
+          >
+            <Friends />
+          </Box>
+        ) : selectedChat ? (
           <Box
             sx={{
               display: 'flex',
@@ -52,7 +62,9 @@ function Home() {
         ) : (
           <Box
             sx={{
-              width: '500px',
+              width: '100%',
+              height: '620px',
+              overflowY: 'auto',
             }}
           >
             <ChatSidebar />
@@ -62,7 +74,7 @@ function Home() {
         <>
           <Box
             sx={{
-              width: '400px',
+              width: '500px',
             }}
           >
             <ChatSidebar />
@@ -81,8 +93,9 @@ function Home() {
             <Box
               sx={{
                 width: `400px`,
+                height: '620px',
                 overflowY: 'auto',
-                border: '1px solid #f2efed',
+                boxShadow: 'rgba(0, 0, 0, 0.35) 0px 5px 15px',
               }}
             >
               <Friends />
