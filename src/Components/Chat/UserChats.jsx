@@ -14,11 +14,13 @@ const UserChats = forwardRef((props, ref) => {
   const [isMessageSend, setMessageSend] = useState(false);
   const isMouted = useRef(true);
   const { subscribe } = sendOrReceiveMessage(selectedChat?.id);
-  const { subscribe: subscribeAllMessage, publish: getAlllMessages } =
-    getMessages(selectedChat?.id);
   const { getDataFromLocalStorage } = useLocalStorage();
   const { setFetching, page, setPage } = useScroll(ref, totalPages);
   const { isSmall, isExtraSmall } = useScreenSize();
+  //TODO:get current user
+  const user = getDataFromLocalStorage('loggedInuser');
+  const { subscribe: subscribeAllMessage, publish: getAlllMessages } =
+    getMessages(selectedChat?.id, user?.id);
 
   const scrollToBottom = () => {
     if (ref?.current) {
@@ -34,9 +36,6 @@ const UserChats = forwardRef((props, ref) => {
     }
   }, [messages, isMessageSend, isMouted.current]);
 
-  //TODO:get current user
-  const user = getDataFromLocalStorage('loggedInuser');
-
   useEffect(() => {
     if (client) {
       setPage(0);
@@ -45,7 +44,11 @@ const UserChats = forwardRef((props, ref) => {
       isMouted.current = true;
       client.publish({
         destination: getAlllMessages,
-        body: JSON.stringify({ chatId: selectedChat?.id, pageNumber: 0 }),
+        body: JSON.stringify({
+          chatId: selectedChat?.id,
+          pageNumber: 0,
+          senderId: user.id,
+        }),
       });
       const subscribeAllMessages = client.subscribe(
         subscribeAllMessage,
@@ -94,7 +97,7 @@ const UserChats = forwardRef((props, ref) => {
     if (senderId == user.id) {
       return {
         height: 'auto',
-        width: `${isSmall || isExtraSmall ? '200px' : 'auto'}`,
+        maxWidth: `${isSmall || isExtraSmall ? '200px' : '350px'}`,
         background: 'linear-gradient(to right, #ff7e5f, #feb47b)',
         flexWrap: 'wrap',
         borderRadius: '40px',
@@ -105,7 +108,7 @@ const UserChats = forwardRef((props, ref) => {
     } else {
       return {
         height: 'auto',
-        width: `${isSmall || isExtraSmall ? '200px' : 'auto'}`,
+        maxWidth: `${isSmall || isExtraSmall ? '200px' : '350px'}`,
         background: 'linear-gradient(to right, #96c93d, #00b09b)',
         wordWrap: 'break-word',
         borderRadius: '40px',

@@ -11,9 +11,9 @@ export const sendOrReceiveMessage = chatId => ({
   subscribe: `/topic/receive/${chatId}`,
   subscribeLastMessage: '/topic/update-last-message',
 });
-export const getMessages = chatId => ({
+export const getMessages = (chatId, userId) => ({
   publish: `/app/user/messages`,
-  subscribe: `/topic/all-messages/` + chatId,
+  subscribe: `/topic/all-messages/${chatId}/${userId}`,
 });
 export const getAllFriends = userId => ({
   publish: `/app/user/get-friends`,

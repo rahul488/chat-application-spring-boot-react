@@ -7,19 +7,15 @@ const useScroll = (ref, totalPages, scrollDown = false) => {
   const { selectedChat } = useChatContext();
 
   function handleScroll() {
-    if (
-      !scrollDown &&
-      ref.current.scrollTop == 5 &&
-      page < totalPages &&
-      !isFetching
-    ) {
-      ref.current.scrollTop = 200;
-      setFetching(true);
-      setPage(prev => prev + 1);
-    } else {
-      if (
-        ref.current.innerHeight + ref.current.scrollTop >=
-        ref.current.offsetHeight
+    if (page < totalPages && !isFetching) {
+      if (!scrollDown && ref.current.scrollTop == 5) {
+        ref.current.scrollTop = 200;
+        setFetching(true);
+        setPage(prev => prev + 1);
+      } else if (
+        scrollDown &&
+        ref.current.scrollTop + ref.current.clientHeight >=
+          ref.current.scrollHeight
       ) {
         setFetching(true);
         setPage(prev => prev + 1);

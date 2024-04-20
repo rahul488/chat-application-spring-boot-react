@@ -32,11 +32,6 @@ const useScreenSize = () => {
       }
     };
     handleResize();
-    // window.addEventListener("resize", handleResize);
-
-    // return () => {
-    //   window.removeEventListener("resize", handleResize);
-    // };
   }, [isExtraSmallScreen, isSmallScreen, isMediumScreen, isLargeScreen]);
 
   return { isExtraSmall, isSmall, isMedium, isLarge };

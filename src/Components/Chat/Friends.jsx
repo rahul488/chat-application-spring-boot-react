@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Avatar,
   Badge,
@@ -18,6 +18,7 @@ import {
 } from '../../util/helper';
 import { useChatContext } from '../../Context/ChatProvider';
 import useLocalStorage from '../../hooks/useLocalStorage';
+import useScroll from '../../hooks/useScoll';
 
 function Friends() {
   const [people, setpeople] = useState([]);
@@ -27,10 +28,20 @@ function Friends() {
   const { getDataFromLocalStorage } = useLocalStorage();
   const user = getDataFromLocalStorage('loggedInuser');
   const [friendRequestCount, setFriendRequestCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(null);
+  const firendListRef = useRef(null);
+  const { setFetching, page, setPage } = useScroll(
+    firendListRef,
+    totalPages,
+    true,
+  );
   const { subscribe, publish } = getUsers(user.id);
   const { publish: sentRequest, subscribe: getAcknowledge } = sentFriendRequest(
     user.id,
   );
+
+  console.log(page, totalPages, 'ooo');
+
   const {
     publish: callFriendRequestList,
     subscribe: subscribeFriendRequestList,
@@ -67,10 +78,37 @@ function Friends() {
 
       return () => {
         notificstionSubscriber.unsubscribe();
-        //receiverSubscriber.unsubscribe();
+        receiverSubscriber.unsubscribe();
       };
     }
   }, [client]);
+
+  useEffect(() => {
+    if (client) {
+      const subscription = client.subscribe(subscribe, users => {
+        const pageResponse = JSON.parse(users.body);
+        setTotalPages(pageResponse.totalPages);
+        setpeople(prev => [...prev, ...pageResponse.content]);
+        setFetching(false);
+      });
+
+      return () => {
+        subscription.unsubscribe();
+      };
+    }
+  }, [client, people]);
+
+  useEffect(() => {
+    if (client && !isFriendRequestList) {
+      client.publish({
+        destination: publish,
+        body: JSON.stringify({
+          userId: user.id,
+          pageNumber: page,
+        }),
+      });
+    }
+  }, [page, client, isFriendRequestList]);
 
   function handleSentRequest(friendId) {
     if (subscribeChannel) {
@@ -123,26 +161,8 @@ function Friends() {
     }
   }
   function getAllFriends() {
-    if (subscribeChannel) {
-      subscribeChannel.unsubscribe();
-    }
-    if (client) {
-      client.publish({
-        destination: publish,
-        body: JSON.stringify({
-          userId: user.id,
-          pageNumber: 0, //TODO-implement pagination
-        }),
-      });
-
-      const subscription = client.subscribe(subscribe, users => {
-        const pageResponse = JSON.parse(users.body);
-        //todo - add pagination
-        setpeople(pageResponse.content || []);
-      });
-      setIsFriendReuqestList(false);
-      setSubscribeChannel(subscription);
-    }
+    setPage(0);
+    setIsFriendReuqestList(false);
   }
 
   function acceptPendingFriendRequest(friendId) {
@@ -172,7 +192,7 @@ function Friends() {
   }
 
   return (
-    <Box>
+    <Box sx={{ height: '100%', overflowY: 'auto' }} ref={firendListRef}>
       <Box p={2} sx={{ display: 'flex', gap: '0.5rem' }}>
         <Chip
           variant="filled"

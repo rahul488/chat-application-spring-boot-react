@@ -84,7 +84,7 @@ function Home() {
               padding: '1rem 1rem',
               width: `${isFriendListOpen ? '500px' : '100%'}`,
               border: '1px solid #f2efed',
-              transition: '0.3s ease-in-out',
+              transition: '0.3s smooth',
             }}
           >
             <Chat />
