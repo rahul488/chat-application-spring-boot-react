@@ -40,8 +40,6 @@ function Friends() {
     user.id,
   );
 
-  console.log(page, totalPages, 'ooo');
-
   const {
     publish: callFriendRequestList,
     subscribe: subscribeFriendRequestList,
