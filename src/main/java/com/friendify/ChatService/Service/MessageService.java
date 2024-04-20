@@ -13,7 +13,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -88,23 +87,13 @@ public class MessageService {
             messagingTemplate.convertAndSend("/topic/update-last-message/"+id,userResponse);
         });
 
-    }
+        //send notification to user
 
-//    @Async("asyncTaskExecutor")
-//    public void saveMessageOnDB(Messages message, int chatId){
-//        User senderUser = userRepo.findById(message.getSenderId()).orElse(null);
-//        Chat chat = chatRepo.findById(chatId).orElse(null);
-//        if(senderUser == null ) throw new UserNotFoundException("User not found");
-//        if(chat == null) throw new CommonException("Chat does not exist between/among the users");
-//        //set chat on db
-//        chat.getMessages().add(message);
-//        chatRepo.save(chat);
-//        getAllUsers(message.getSenderId());
-//    }
+
+    }
 
     @Transactional
     public void getAllUsers(FriendDTO friendDTO){
-       // getCurrentUserId();
         Pageable pageRequest = PageRequest.of(friendDTO.getPageNumber(),10);
         Page<User> users = userRepo.getAllUsers(pageRequest,friendDTO.getUserId());
         List<FriendResponseDTO> friendResponseDTOList = new ArrayList<>();
@@ -141,14 +130,14 @@ public class MessageService {
         messagingTemplate.convertAndSend("/topic/start-chat/"+conversion.getSenderId(), chatResponse);
     }
 
-    public void getAllMessagesByChatId(int pageNumber,int chatId){
+    public void getAllMessagesByChatId(int pageNumber,int chatId, int senderId){
         /** Pagination :- By default last 10 message will go to client **/
         Pageable pageRequest=PageRequest.of(pageNumber,10);
         Page<Messages> messages = messageRepo.findByChatId(pageRequest,chatId);
         List<Messages> reversedMessages = new ArrayList<>(messages.getContent());
         Collections.reverse(reversedMessages);
         Page<Messages> reversedPage = new PageImpl<>(reversedMessages, pageRequest, messages.getTotalElements());
-        messagingTemplate.convertAndSend("/topic/all-messages/"+chatId,reversedPage);
+        messagingTemplate.convertAndSend("/topic/all-messages/"+chatId+"/"+senderId,reversedPage);
     }
 
     @Transactional
@@ -175,7 +164,8 @@ public class MessageService {
 
         messagingTemplate.convertAndSend("/topic/request-status/"+currUser.getId(),friendResponseDTO);
 
-        notifyFriend(currUser,friend);
+        notifyFriend(NotificationStatus.NEW_FRIEND_REQUEST,friend);
+        friendResponseDTO.setId(friendship.getId());
         updateRequestWithFriend(friendResponseDTO,currUser, friend);
     }
 
@@ -185,13 +175,12 @@ public class MessageService {
     public void updateRequestWithFriend(FriendResponseDTO friendResponseDTO, User currUser, User friend){
         friendResponseDTO.setName(currUser.getName());
         friendResponseDTO.setFriend(false);
-        friendResponseDTO.setId(currUser.getId());
         messagingTemplate.convertAndSend("/topic/update-last-friend-request/"+friend.getId(),friendResponseDTO);
     }
 //    @Async("asyncTaskExecutor")
-    public void notifyFriend(User currUser, User friend){
+    public void notifyFriend(NotificationStatus notificationStatus, User friend){
         Notification notification = new Notification();
-        notification.setNotificationType(NotificationStatus.NEW_FRIEND_REQUEST);
+        notification.setNotificationType(notificationStatus);
         notification.setActive(true);
         notification.setUser(friend);
 
@@ -204,13 +193,9 @@ public class MessageService {
     }
 
     public void getPendingRequestNotification(int userId){
-        List<Notification> notifications = notificationRepo.getFriendRequestNotifications(userId,NotificationStatus.NEW_FRIEND_REQUEST);
-
+        List<Notification> notifications = notificationRepo
+                .getFriendRequestNotifications(userId,NotificationStatus.NEW_FRIEND_REQUEST);
         messagingTemplate.convertAndSend("/topic/notification/"+userId,notifications.size());
-    }
-
-    public void getAllPendingNotifications(){
-
     }
 
     @Transactional
@@ -218,7 +203,7 @@ public class MessageService {
         FriendShip friendExist = friendShipRepo.findById(friendShipId).orElse(null);
         if(friendExist == null) throw new CommonException("Friend doesn't exist");
         FriendShip friendship = friendShipRepo.findByUserAndFriend(friendExist.getUser(), friendExist.getFriend());
-        if (friendship != null) {
+        if (friendship != null && friendship.isAccepted() == false) {
             friendship.setAccepted(true);
             friendShipRepo.save(friendship);
         }
@@ -234,14 +219,26 @@ public class MessageService {
         friendship.getFriend().getChats().add(chat);
         chatRepo.save(chat);
         messagingTemplate.convertAndSend("/topic/update-friend-request/"+friendShipId, friendResponseDTO);
+        messagingTemplate.convertAndSend("/topic/update-latest-friend/"+friendShipId, friendResponseDTO);
+        //notify user with updated request notification
+        List<Notification> notification = notificationRepo.getAnyFriendRequestPendingNotifications(friendExist.getFriend().getId(),NotificationStatus.NEW_FRIEND_REQUEST);
+        notificationRepo.deleteById(notification.get(0).getId());
 
+        getPendingRequestNotification(friendExist.getFriend().getId());
     }
 
     public void getFriendList(FriendDTO friendDTO){
         User user = userRepo.findById(friendDTO.getUserId()).orElse(null);
         if(user == null) throw new UserNotFoundException("User not found");
         Pageable pageable = PageRequest.of(friendDTO.getPageNumber(),10);
-        Page<FriendShip> friendShips = friendShipRepo.getAllFriends(pageable,friendDTO.getUserId());
+        Page<FriendShip> friendShips = null;
+
+        if(friendDTO.getQuery() == null){
+            friendShips = friendShipRepo.getAllFriends(pageable,friendDTO.getUserId());
+        }
+        else{
+            friendShips = friendShipRepo.getFriendsBySearchQuery(pageable,friendDTO.getUserId(),friendDTO.getQuery());
+        }
         List<User> users = new ArrayList<>();
         friendShips.getContent().stream().forEach((friendShip) -> {
             if(friendShip.getFriend().getId() != friendDTO.getUserId()){
@@ -265,7 +262,7 @@ public class MessageService {
 
         friendRequests.forEach((friend) -> {
             FriendResponseDTO friendResponseDTO = new FriendResponseDTO();
-            friendResponseDTO.setId(friend.getUser().getId());
+            friendResponseDTO.setId(friend.getId());
             friendResponseDTO.setName(friend.getUser().getName());
             friendResponseDTO.setFriend(false);
             friendResponseDTOList.add(friendResponseDTO);
@@ -298,4 +295,5 @@ public class MessageService {
         }
         return userResponses;
     }
+
 }

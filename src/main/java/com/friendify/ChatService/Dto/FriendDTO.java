@@ -16,4 +16,6 @@ public class FriendDTO {
     private int friendId;
 
     private int pageNumber=0;
+
+    private String query = null;
 }

@@ -44,7 +44,7 @@ public class MessageController {
 
     @MessageMapping("/user/messages")
     public void getAllMessages(@RequestBody MessageRequestDTO messageRequestDTO){
-        messageService.getAllMessagesByChatId(messageRequestDTO.getPageNumber(),messageRequestDTO.getChatId());
+        messageService.getAllMessagesByChatId(messageRequestDTO.getPageNumber(),messageRequestDTO.getChatId(), messageRequestDTO.getSenderId());
     }
 
     @MessageMapping("/user/get-friends")
@@ -71,5 +71,6 @@ public class MessageController {
     public void getPendingFriendRequestCount(@DestinationVariable int userId){
         messageService.getPendingRequestNotification(userId);
     }
+
 
 }

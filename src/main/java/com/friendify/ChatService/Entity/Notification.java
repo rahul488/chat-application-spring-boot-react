@@ -1,6 +1,7 @@
 package com.friendify.ChatService.Entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -14,6 +15,7 @@ public class Notification {
     private NotificationStatus notificationType;
 
     @ManyToOne
+    @JsonIgnore
     private User user;
 
     private boolean isActive;
