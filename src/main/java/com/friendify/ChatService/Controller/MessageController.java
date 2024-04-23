@@ -72,5 +72,10 @@ public class MessageController {
         messageService.getPendingRequestNotification(userId);
     }
 
+    @MessageMapping("/user/update-message-notification/{chatId}/{userId}")
+    public void updateMessageCount(@DestinationVariable int chatId, @DestinationVariable int userId){
+        messageService.updateNotification(chatId,userId);
+    }
+
 
 }

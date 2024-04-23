@@ -27,7 +27,8 @@ public class Messages {
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt=new Date();
 
-    private boolean isRead;
+    //Not require
+    private boolean isRead=false;
 
     @ManyToOne
     @JsonIgnore

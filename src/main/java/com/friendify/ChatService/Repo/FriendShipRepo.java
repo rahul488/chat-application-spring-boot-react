@@ -22,14 +22,15 @@ public interface FriendShipRepo extends JpaRepository<FriendShip,Integer> {
     @Query("SELECT f " +
             "FROM FriendShip f " +
             "LEFT JOIN User u " +
-            "ON (f.user.id = u.id OR f.friend.id = u.id) " +
+            "ON f.user.id = :userId OR f.friend.id = :userId " +
             "AND f.accepted = true " +
             "WHERE u.name LIKE %:query% " +
-            "AND u.id != :userId")
+            "AND (u.id = f.user.id OR u.id = f.friend.id) ")
     Page<FriendShip> getFriendsBySearchQuery(Pageable pageable, int userId, String query);
 }
 /**
  *
- * SELECT * FROM friend_ship left join user on friend_ship.user_id = user.id OR friend_ship.friend_id = user.id
- * AND friend_ship.accepted = 1 AND user.name like '%ram%' where user.id != 1
+ * SELECT * FROM friend_ship left join user on friend_ship.user_id = 1 OR friend_ship.friend_id = 1
+ *  AND friend_ship.accepted = 1 where user.name like '%ram%' and (user.id = friend_ship.friend_id or user.id = friend_ship.user_id
+ *
  * **/

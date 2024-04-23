@@ -17,7 +17,9 @@ public interface UserRepo extends JpaRepository<User,Integer> {
             "AND NOT EXISTS (" +
             "   SELECT f FROM FriendShip f " +
             "   WHERE (f.user.id = :userId AND f.friend.id = u.id) " +
-            "   OR (f.friend.id = :userId AND f.user.id = u.id)" +
+            "   OR (f.user.id = u.id AND f.friend.id = :userId)" +
+            "   OR (f.user.id = :userId AND f.friend.id = u.id)" +
+            "   OR (f.user.id = u.id AND f.friend.id = :userId)" +
             ")")
     public Page<User> getAllUsers(Pageable pageable, @Param("userId") int userId);
 

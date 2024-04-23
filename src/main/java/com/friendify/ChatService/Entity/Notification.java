@@ -18,16 +18,19 @@ public class Notification {
     @JsonIgnore
     private User user;
 
-    private boolean isActive;
+    private int chatId;
+
+    private int count;
 
     public Notification() {
     }
 
-    public Notification(int id, NotificationStatus notificationType, boolean isActive, User user) {
+    public Notification(int id, NotificationStatus notificationType, User user, int chatId, int count) {
         this.id = id;
         this.notificationType = notificationType;
-        this.isActive = isActive;
         this.user = user;
+        this.chatId = chatId;
+        this.count = count;
     }
 
     public int getId() {
@@ -46,13 +49,6 @@ public class Notification {
         this.notificationType = notificationType;
     }
 
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public void setActive(boolean active) {
-        isActive = active;
-    }
 
     public User getUser() {
         return user;
@@ -60,5 +56,21 @@ public class Notification {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public int getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(int chatId) {
+        this.chatId = chatId;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 }

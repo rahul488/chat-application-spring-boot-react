@@ -83,13 +83,29 @@ public class MessageService {
         userResponse.setId(senderUser.getId());
         userResponse.setChatId(chat.getId());
         userResponse.setName(senderUser.getName());
+
         message.getRecipientId().stream().forEach((id) -> {
+
+            if(id != senderUser.getId()){
+                 Notification notification = notificationRepo.
+                         findByChatAndUser(chat.getId(),senderUser.getId(),NotificationStatus.NEW_INCOMING_MESSAGE);
+                 if(notification == null){
+                     notification = new Notification();
+                     notification.setCount(1);
+                     notification.setChatId(chat.getId());
+                     notification.setNotificationType(NotificationStatus.NEW_INCOMING_MESSAGE);
+                     notification.setUser(senderUser);
+                 }else{
+                     notification.setCount(notification.getCount()+1);
+                 }
+                 notificationRepo.save(notification);
+                 MessageNotificationResponse messageNotificationResponse = new MessageNotificationResponse();
+                 messageNotificationResponse.setOwnerId(senderUser.getId());
+                 messageNotificationResponse.setCount(notification.getCount());
+                 userResponse.setNotificationResponse(messageNotificationResponse);
+            }
             messagingTemplate.convertAndSend("/topic/update-last-message/"+id,userResponse);
         });
-
-        //send notification to user
-
-
     }
 
     @Transactional
@@ -127,7 +143,25 @@ public class MessageService {
         chatResponse.setId(chat.getId());
         chatResponse.setGroupName(groupName);
         chatResponse.setUsers(chat.getUsers());
+        if(chat !=null){
+            conversion.getRecipientsId().forEach((userId) -> {
+                User user = userRepo.findById(userId).orElse(null);
+                Notification notifications = notificationRepo.
+                        findByChatAndUser(chat.getId(),user.getId(),
+                                NotificationStatus.NEW_INCOMING_MESSAGE);
+                if(notifications != null){
+                    notificationRepo.delete(notifications);
+                }
+            });
+        }
         messagingTemplate.convertAndSend("/topic/start-chat/"+conversion.getSenderId(), chatResponse);
+    }
+
+    public void updateNotification(int chatId, int userId){
+        Notification notification = notificationRepo.findByChatAndUser(chatId,userId,NotificationStatus.NEW_INCOMING_MESSAGE);
+        if(notification != null){
+            notificationRepo.delete(notification);
+        }
     }
 
     public void getAllMessagesByChatId(int pageNumber,int chatId, int senderId){
@@ -179,23 +213,25 @@ public class MessageService {
     }
 //    @Async("asyncTaskExecutor")
     public void notifyFriend(NotificationStatus notificationStatus, User friend){
-        Notification notification = new Notification();
-        notification.setNotificationType(notificationStatus);
-        notification.setActive(true);
-        notification.setUser(friend);
-
+        Notification notification = notificationRepo.
+                getFriendRequestNotifications(friend.getId(),NotificationStatus.NEW_FRIEND_REQUEST);
+        if(notification == null){
+            notification = new Notification();
+            notification.setNotificationType(notificationStatus);
+            notification.setCount(1);
+            notification.setUser(friend);
+        }else{
+            notification.setCount(notification.getCount()+1);
+        }
         notificationRepo.save(notification);
-
-        List<Notification> notifications = notificationRepo.getFriendRequestNotifications(friend.getId(),NotificationStatus.NEW_FRIEND_REQUEST);
-
-        messagingTemplate.convertAndSend("/topic/notification/"+friend.getId(),notifications.size());
+        messagingTemplate.convertAndSend("/topic/notification/"+friend.getId(),notification.getCount());
 
     }
 
     public void getPendingRequestNotification(int userId){
-        List<Notification> notifications = notificationRepo
+        Notification notifications = notificationRepo
                 .getFriendRequestNotifications(userId,NotificationStatus.NEW_FRIEND_REQUEST);
-        messagingTemplate.convertAndSend("/topic/notification/"+userId,notifications.size());
+        messagingTemplate.convertAndSend("/topic/notification/"+userId,notifications != null ? notifications.getCount() : 0);
     }
 
     @Transactional
@@ -219,18 +255,19 @@ public class MessageService {
         friendship.getFriend().getChats().add(chat);
         chatRepo.save(chat);
         messagingTemplate.convertAndSend("/topic/update-friend-request/"+friendShipId, friendResponseDTO);
-        messagingTemplate.convertAndSend("/topic/update-latest-friend/"+friendShipId, friendResponseDTO);
         //notify user with updated request notification
-        List<Notification> notification = notificationRepo.getAnyFriendRequestPendingNotifications(friendExist.getFriend().getId(),NotificationStatus.NEW_FRIEND_REQUEST);
-        notificationRepo.deleteById(notification.get(0).getId());
-
+        Notification notification = notificationRepo.
+                getFriendRequestNotifications(friendExist.getFriend().getId(),
+                        NotificationStatus.NEW_FRIEND_REQUEST);
+        notification.setCount(notification.getCount()-1);
+        notificationRepo.save(notification);
         getPendingRequestNotification(friendExist.getFriend().getId());
     }
 
     public void getFriendList(FriendDTO friendDTO){
         User user = userRepo.findById(friendDTO.getUserId()).orElse(null);
         if(user == null) throw new UserNotFoundException("User not found");
-        Pageable pageable = PageRequest.of(friendDTO.getPageNumber(),10);
+        Pageable pageable = PageRequest.of(friendDTO.getPageNumber(),50);
         Page<FriendShip> friendShips = null;
 
         if(friendDTO.getQuery() == null){
@@ -285,11 +322,19 @@ public class MessageService {
                     lastMessage = messageRepo.findLastChatMessages(chat.getId());
                     userResponse.setChatId(chat.getId());
                 }
-
+                Notification notifications = notificationRepo.findByChatAndUser(chat.getId(),user.getId(), NotificationStatus.NEW_INCOMING_MESSAGE);
                 userResponse.setLastMessage(lastMessage);
                 userResponse.setId(user.getId());
                 userResponse.setName(user.getName());
-
+                MessageNotificationResponse messageNotificationResponse = new MessageNotificationResponse();
+                userResponse.setNotificationResponse(messageNotificationResponse);
+                if(notifications != null){
+                    messageNotificationResponse.setOwnerId(notifications.getUser().getId());
+                    messageNotificationResponse.setCount(notifications.getCount());
+                    userResponse.setNotificationResponse(messageNotificationResponse);
+                }else{
+                    userResponse.setNotificationResponse(null);
+                }
                 userResponses.add(userResponse);
             }
         }
