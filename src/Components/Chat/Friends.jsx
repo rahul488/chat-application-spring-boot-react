@@ -86,7 +86,11 @@ function Friends() {
       const subscription = client.subscribe(subscribe, users => {
         const pageResponse = JSON.parse(users.body);
         setTotalPages(pageResponse.totalPages);
+       if(page == 0){
+          setpeople(pageResponse.content);
+       }else{
         setpeople(prev => [...prev, ...pageResponse.content]);
+       }
         setFetching(false);
       });
 
@@ -94,7 +98,7 @@ function Friends() {
         subscription.unsubscribe();
       };
     }
-  }, [client, people]);
+  }, [client, people, page]);
 
   useEffect(() => {
     if (client && !isFriendRequestList) {
@@ -160,7 +164,6 @@ function Friends() {
   }
   function getAllFriends() {
     setPage(0);
-    setpeople([]);
     setIsFriendReuqestList(false);
   }
 
