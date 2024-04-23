@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, IconButton } from '@mui/material';
 import ChatSidebar from '../Components/Chat/Chats';
 import Chat from '../Components/Chat/Chat';
@@ -7,11 +7,36 @@ import useScreenSize from '../hooks/useScreenSize';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Friends from '../Components/Chat/Friends';
 import { useDrwaerContext } from '../Context/DrawerProvider';
+import { getFriendRequestsNotification } from '../util/helper';
+import useLocalStorage from '../hooks/useLocalStorage';
 
 function Home() {
-  const { selectedChat, handleSelectedChat } = useChatContext();
+  const { selectedChat, handleSelectedChat, client } = useChatContext();
   const { isSmall, isExtraSmall } = useScreenSize();
-  const { isFriendListOpen } = useDrwaerContext();
+  const { isFriendListOpen, handleNotificationCount } = useDrwaerContext();
+  const { getDataFromLocalStorage } = useLocalStorage();
+  const user = getDataFromLocalStorage('loggedInuser');
+
+  const {
+    subscribe: getFriendrequestCount,
+    publish: callFriendRequestNotification,
+  } = getFriendRequestsNotification(user.id);
+
+  useEffect(() => {
+    if (client) {
+      client.publish({
+        destination: callFriendRequestNotification,
+      });
+      const notificationSubscriber = client.subscribe(
+        getFriendrequestCount,
+        count => {
+          handleNotificationCount(+count.body);
+        },
+      );
+
+      return () => notificationSubscriber.unsubscribe();
+    }
+  }, [client]);
 
   return (
     <Box
@@ -82,7 +107,7 @@ function Home() {
           <Box
             sx={{
               padding: '1rem 1rem',
-              width: `${isFriendListOpen ? '500px' : '100%'}`,
+              width: `${isFriendListOpen ? '60%' : '100%'}`,
               border: '1px solid #f2efed',
               transition: '0.3s smooth',
             }}
@@ -92,8 +117,9 @@ function Home() {
           {isFriendListOpen ? (
             <Box
               sx={{
-                width: `400px`,
+                width: `40%`,
                 height: '620px',
+                marginLeft: '0.5rem',
                 overflowY: 'auto',
                 boxShadow: 'rgba(0, 0, 0, 0.35) 0px 5px 15px',
               }}

@@ -160,6 +160,7 @@ function Friends() {
   }
   function getAllFriends() {
     setPage(0);
+    setpeople([]);
     setIsFriendReuqestList(false);
   }
 

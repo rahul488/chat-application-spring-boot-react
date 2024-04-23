@@ -15,7 +15,7 @@ const UserChats = forwardRef((props, ref) => {
   const isMouted = useRef(true);
   const { subscribe } = sendOrReceiveMessage(selectedChat?.id);
   const { getDataFromLocalStorage } = useLocalStorage();
-  const { setFetching, page, setPage } = useScroll(ref, totalPages);
+  // const { setFetching, page, setPage } = useScroll(ref, totalPages);
   const { isSmall, isExtraSmall } = useScreenSize();
   //TODO:get current user
   const user = getDataFromLocalStorage('loggedInuser');
@@ -38,7 +38,6 @@ const UserChats = forwardRef((props, ref) => {
 
   useEffect(() => {
     if (client) {
-      setPage(0);
       setMessage([]);
       setMessageSend(false);
       isMouted.current = true;
@@ -59,21 +58,22 @@ const UserChats = forwardRef((props, ref) => {
             return [...currentPage.content, ...prev];
           });
           setMessageSend(false);
-          setFetching(false);
+          // setFetching(false);
         },
       );
       const subscribeLastMessage = client.subscribe(subscribe, chat => {
         const lastMessage = JSON.parse(chat.body);
         setMessage(prev => {
           let updatedMessages = [...prev, lastMessage];
-          const slicedMessages = [...prev, lastMessage].slice(
-            updatedMessages.length - 10,
-            updatedMessages.length,
-          );
-          return updatedMessages.length > 10 ? slicedMessages : updatedMessages;
+
+          return updatedMessages;
+          // const slicedMessages = [...prev, lastMessage].slice(
+          //   updatedMessages.length - 10,
+          //   updatedMessages.length,
+          // );
+          // return updatedMessages.length > 10 ? slicedMessages : updatedMessages;
         });
         setMessageSend(true);
-        setPage(0);
       });
       return () => {
         subscribeAllMessages.unsubscribe();

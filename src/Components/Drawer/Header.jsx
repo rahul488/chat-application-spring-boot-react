@@ -1,6 +1,7 @@
 import * as React from 'react';
 import AppBar from '@mui/material/AppBar';
 import {
+  Badge,
   Box,
   Button,
   IconButton,
@@ -15,8 +16,7 @@ import { useDrwaerContext } from '../../Context/DrawerProvider';
 export default function Header() {
   const router = useNavigate();
   const user = JSON.parse(localStorage.getItem('loggedInuser'));
-  const { handleFriendDispaly } = useDrwaerContext();
-
+  const { handleFriendDispaly, notificationCount } = useDrwaerContext();
   function handleLogout() {
     localStorage.clear();
     router('/');
@@ -38,9 +38,11 @@ export default function Header() {
           ) : (
             <>
               <Tooltip title="People">
-                <IconButton onClick={handleFriendDispaly}>
-                  <PeopleIcon />
-                </IconButton>
+                <Badge badgeContent={notificationCount} color="error">
+                  <IconButton onClick={handleFriendDispaly}>
+                    <PeopleIcon />
+                  </IconButton>
+                </Badge>
               </Tooltip>
               <Button color="inherit" onClick={handleLogout}>
                 Logout

@@ -1,12 +1,19 @@
 import React, { useState } from 'react';
-import { Card, CardContent, Typography, Avatar, Box } from '@mui/material';
+import {
+  Card,
+  CardContent,
+  Typography,
+  Avatar,
+  Box,
+  Badge,
+} from '@mui/material';
 import { getSelectedChats } from '../../util/helper';
 import { useChatContext } from '../../Context/ChatProvider';
 import { getTime, getWeekDays } from '../../util/time';
 import useLocalStorage from '../../hooks/useLocalStorage';
 
 function AllUsers({ users }) {
-  const { handleSelectedChat, client } = useChatContext();
+  const { handleSelectedChat, client, selectedChat } = useChatContext();
   const { getDataFromLocalStorage } = useLocalStorage();
   const loggedInUser = getDataFromLocalStorage('loggedInuser');
   const { subscribe, publish } = getSelectedChats(loggedInUser.id);
@@ -88,14 +95,26 @@ function AllUsers({ users }) {
                 </Typography>
               </Box>
             </CardContent>
-            <CardContent>
-              <Typography gutterBottom variant="subtitle1" component="div">
-                {getTime(user?.lastMessage?.createdAt)}
-              </Typography>
-              <Typography variant="caption">
-                {' '}
-                {getWeekDays(user?.lastMessage?.createdAt)}
-              </Typography>
+            <CardContent
+              sx={{ display: 'flex', gap: '1rem', alignItems: 'center' }}
+            >
+              {user.chatId !== selectedChat?.id ? (
+                <Badge
+                  badgeContent={user?.notificationResponse?.count}
+                  color="secondary"
+                >
+                  {/* <MailIcon /> */}
+                </Badge>
+              ) : null}
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Typography gutterBottom variant="subtitle1" component="div">
+                  {getTime(user?.lastMessage?.createdAt)}
+                </Typography>
+                <Typography variant="caption" sx={{ textAlign: 'end' }}>
+                  {' '}
+                  {getWeekDays(user?.lastMessage?.createdAt)}
+                </Typography>
+              </Box>
             </CardContent>
           </Card>
         ))

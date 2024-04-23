@@ -8,8 +8,8 @@ const useScroll = (ref, totalPages, scrollDown = false) => {
 
   function handleScroll() {
     if (page < totalPages && !isFetching) {
-      if (!scrollDown && ref.current.scrollTop == 5) {
-        ref.current.scrollTop = 200;
+      if (!scrollDown && ref.current.scrollTop == 0) {
+        // ref.current.scrollTop = 200;
         setFetching(true);
         setPage(prev => prev + 1);
       } else if (

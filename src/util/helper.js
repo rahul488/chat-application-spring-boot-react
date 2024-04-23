@@ -42,6 +42,11 @@ export const getFriendRequestsNotification = userId => ({
   subscribe: `/topic/notification/${userId}`,
 });
 
+export const updateMessageNotofication = () => ({
+  publish: (chatId, userId) =>
+    `/app/user/update-message-notification/${chatId}/${userId}`,
+});
+
 //user related APIS
 // const BASEURL = "http://friend-chat-env.eba-btq4zkth.eu-north-1.elasticbeanstalk.com/"
 const BASEURL = 'http://localhost:5000/';

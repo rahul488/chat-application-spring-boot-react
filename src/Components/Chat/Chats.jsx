@@ -1,7 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Box, TextField, debounce } from '@mui/material';
+import { Box, TextField } from '@mui/material';
 import { useChatContext } from '../../Context/ChatProvider';
-import { getAllFriends, sendOrReceiveMessage } from '../../util/helper';
+import {
+  getAllFriends,
+  sendOrReceiveMessage,
+  updateMessageNotofication,
+} from '../../util/helper';
 import AllUsers from './AllUsers';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import useScroll from '../../hooks/useScoll';
@@ -10,11 +14,12 @@ import useDebounce from '../../hooks/useDebounce';
 function ChatSidebar() {
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState(null);
-  const { client } = useChatContext();
+  const { client, selectedChat } = useChatContext();
   const { getDataFromLocalStorage } = useLocalStorage();
   const user = getDataFromLocalStorage('loggedInuser');
   const { subscribe, publish } = getAllFriends(user.id);
   const { subscribeLastMessage } = sendOrReceiveMessage();
+  const { publish: updateMessageCount } = updateMessageNotofication();
   const [totalPages, setTotalPages] = useState(null);
   const sidebarRef = useRef(null);
   const { setFetching, page, setPage } = useScroll(
@@ -43,11 +48,35 @@ function ChatSidebar() {
     if (client) {
       const subscribeLastMsg = client.subscribe(
         subscribeLastMessage + `/${user?.id}`,
-        msg => {
-          const message = JSON.parse(msg.body);
+        currUser => {
+          const senderUser = JSON.parse(currUser.body);
+
+          if (
+            senderUser.chatId === selectedChat?.id &&
+            senderUser.notificationResponse
+          ) {
+            client.publish({
+              destination: updateMessageCount(
+                senderUser.chatId,
+                senderUser.notificationResponse.ownerId,
+              ),
+            });
+          }
+
           const updatedUser = users.map(user => {
-            if (user.chatId === message.chatId) {
-              return { ...user, ['lastMessage']: message.lastMessage };
+            if (user.chatId === senderUser.chatId) {
+              const updatedUser = {
+                ...user,
+                ['lastMessage']: senderUser.lastMessage,
+                ['notificationResponse']: senderUser.notificationResponse,
+              };
+              if (
+                senderUser.chatId === selectedChat?.id &&
+                senderUser.notificationResponse
+              ) {
+                updatedUser['notificationResponse'] = null;
+              }
+              return updatedUser;
             } else {
               return user;
             }
@@ -59,7 +88,7 @@ function ChatSidebar() {
         subscribeLastMsg.unsubscribe();
       };
     }
-  }, [client, users]);
+  }, [client, users, selectedChat]);
 
   useEffect(() => {
     if (client) {
