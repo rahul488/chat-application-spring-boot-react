@@ -71,7 +71,7 @@ public class MessageService {
         messageResponse.setMessage(message.getMessage());
         messageResponse.setSender(senderUser);
         //set chat on db
-        Messages messages = Messages.builder().message(message.getMessage()).chat(chat).senderId(message.getSenderId()).createdAt(new Date()).build();
+        Messages messages = Messages.builder().message(message.getMessage()).chat(chat).senderId(message.getSenderId()).createdAt(new Date()).senderName(senderUser.getName()).build();
         chat.getMessages().add(messages);
         chatRepo.save(chat);
         messages.setChat(chat);
