@@ -12,7 +12,7 @@ For now this application supports following functionalities.
    2. Sending images in chat.
    3. Security for websockets.
 
-Important Dependency tgay hase been used for this applications:-
+Important Dependency that has been used for this applications:-
 1. Spring web socket.
 2. Spring security with jwt.
 3. Jpa for db management.
