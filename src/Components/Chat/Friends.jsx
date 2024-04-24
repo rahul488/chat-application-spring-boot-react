@@ -233,11 +233,12 @@ function Friends() {
             className="friends-card"
           >
             <Avatar
-              alt="Rahul"
-              src="./vite.svg"
+              alt={`${currUser.name}`}
+              src="./"
               sx={{
                 height: '40px',
                 width: '40px',
+                background:'green',
                 borderRadius: '40px',
                 boxShadow: 'rgba(0, 0, 0, 0.35) 0px 5px 15px',
               }}

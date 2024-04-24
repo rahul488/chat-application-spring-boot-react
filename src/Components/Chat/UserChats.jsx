@@ -117,7 +117,6 @@ const UserChats = forwardRef((props, ref) => {
       };
     }
   };
-
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {user &&
@@ -150,11 +149,12 @@ const UserChats = forwardRef((props, ref) => {
               >
                 {message.senderId !== user.id ? (
                   <Avatar
-                    alt="Rahul"
-                    src="./vite.svg"
+                    alt={`${message?.senderName}`}
+                    src="./"
                     sx={{
                       height: '40px',
                       width: '40px',
+                      background:'red',
                       borderRadius: '40px',
                       boxShadow: 'rgba(0, 0, 0, 0.35) 0px 5px 15px',
                     }}
@@ -187,11 +187,12 @@ const UserChats = forwardRef((props, ref) => {
                 </Box>
                 {message.senderId === user.id ? (
                   <Avatar
-                    alt="Rahul"
-                    src="./vite.svg"
+                  alt={`${message?.senderName}`}
+                  src="./"
                     sx={{
                       height: '40px',
                       width: '40px',
+                      background:'green',
                       borderRadius: '40px',
                       boxShadow: 'rgba(0, 0, 0, 0.35) 0px 5px 15px',
                     }}

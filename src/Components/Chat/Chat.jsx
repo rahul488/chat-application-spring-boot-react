@@ -22,8 +22,10 @@ function Chat() {
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Avatar alt="Rahul" src="./vite.svg" />
-              <Typography variant="subtitle1">
+             <Box sx={{padding:'0.5rem 0.5rem'}}>
+             <Avatar alt={`${selectedChat.groupName}`} sx={{background:'red'}} src="./" />
+             </Box>
+              <Typography variant="subtitle1" ml={2}>
                 {selectedChat.groupName}
               </Typography>
             </Box>

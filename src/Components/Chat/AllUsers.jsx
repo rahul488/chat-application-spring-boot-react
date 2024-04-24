@@ -70,13 +70,14 @@ function AllUsers({ users }) {
             }}
             onClick={() => startChat(user)}
           >
-            <CardContent sx={{ display: 'flex', gap: '1rem' }}>
+            <CardContent sx={{ display: 'flex', gap: '1rem', alignItems:'center' }}>
               <Avatar
-                alt="Rahul"
-                src="./vite.svg"
+                alt={`${user.name}`}
+                src='./'
                 sx={{
                   height: '40px',
                   width: '40px',
+                  background:'green',
                   borderRadius: '40px',
                   boxShadow: 'rgba(0, 0, 0, 0.35) 0px 5px 15px',
                 }}
